@@ -60,7 +60,7 @@ export default function RencontresPage() {
       <section>
         <h2 className="font-serif text-xl mb-8">Demande de participation</h2>
         <form
-          action="https://formspree.io/f/PLACEHOLDER_ID"
+          action="https://formspree.io/f/xzdkyjdd"
           method="POST"
           className="space-y-6 max-w-lg"
         >
