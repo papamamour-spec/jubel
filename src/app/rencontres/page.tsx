@@ -35,8 +35,8 @@ export default function RencontresPage() {
           Pas de tribune. Pas de micro. Pas de communiqué de presse.
         </p>
         <p>
-          Chaque rencontre réunit des praticiens — ceux qui font, qui décident,
-          qui subissent — autour d'une question précise. Le but n'est pas de
+          Chaque rencontre réunit des praticiens, ceux qui font, qui décident,
+          qui subissent, autour d'une question précise. Le but n'est pas de
           produire des recommandations. Le but est de comprendre.
         </p>
         <p>

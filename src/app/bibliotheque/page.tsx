@@ -156,7 +156,7 @@ export default function BibliothequePage() {
                     </a>
                   </h3>
                   <p className="text-sm text-noir/50 mt-1">
-                    {texte.auteur} — {texte.date}
+                    {texte.auteur}, {texte.date}
                   </p>
                   <p className="text-sm text-noir/60 mt-3 leading-relaxed">
                     {texte.resume}

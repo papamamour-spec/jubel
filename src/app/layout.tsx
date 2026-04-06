@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: {
     default: "Institut Jubël",
-    template: "%s — Institut Jubël",
+    template: "%s | Institut Jubël",
   },
   description:
     "Nous ne cherchons pas à gouverner le Sénégal. Nous cherchons à le comprendre. Et à mettre cette compréhension au service de ceux qui le servent.",
