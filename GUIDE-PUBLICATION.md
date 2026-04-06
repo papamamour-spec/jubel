@@ -1,4 +1,4 @@
-# Guide de publication — Institut Jubël
+# Guide de publication : Institut Jubël
 
 Ce guide explique comment ajouter un nouveau Carnet ou un nouveau numéro de la Revue sur le site de l'Institut Jubël.
 
@@ -102,7 +102,7 @@ La Revue suit la même syntaxe que les Carnets, avec un champ supplémentaire `r
 
 ```mdx
 ---
-title: "Revue Jubël — Numéro 2"
+title: "Revue Jubël : Numéro 2"
 date: "2026-04-01"
 description: "Deuxième numéro de la Revue mensuelle de l'Institut Jubël."
 numero: 2
@@ -148,7 +148,7 @@ Contenu de la quatrième rubrique...
 
 | Champ         | Format              | Exemple                                    |
 |---------------|---------------------|--------------------------------------------|
-| `title`       | Texte entre guillemets | `"Revue Jubël — Numéro 2"`              |
+| `title`       | Texte entre guillemets | `"Revue Jubël : Numéro 2"`              |
 | `date`        | `"AAAA-MM-JJ"`     | `"2026-04-01"`                             |
 | `description` | Texte court         | `"Deuxième numéro de la Revue mensuelle."` |
 | `numero`      | Nombre entier       | `2`                                        |
