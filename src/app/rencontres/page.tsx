@@ -60,12 +60,10 @@ export default function RencontresPage() {
       <section>
         <h2 className="font-serif text-xl mb-8">Demande de participation</h2>
         <form
-          action="https://formsubmit.co/contact@jubel.sn"
+          action="https://formspree.io/f/PLACEHOLDER_ID"
           method="POST"
           className="space-y-6 max-w-lg"
         >
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="hidden" name="_template" value="box" />
 
           <div>
             <label htmlFor="nom" className="block text-sm text-noir/60 mb-2">
