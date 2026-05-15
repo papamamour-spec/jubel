@@ -1,0 +1,32 @@
+name: revue-quotidienne
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      - run: npm ci
+
+      - name: Générer la revue du jour
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        run: npx tsx scripts/revue/run.ts
+
+      - name: Commit et push
+        run: |
+          git config user.name "jubel-bot"
+          git config user.email "bot@jubel.sn"
+          git add content/revue-du-jour
+          git commit -m "revue: $(date +%Y-%m-%d)" || echo "Pas de changement"
+          git push

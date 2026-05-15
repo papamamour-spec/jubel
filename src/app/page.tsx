@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 const sections = [
-  { href: "/revue", label: "La Revue", desc: "Lecture mensuelle" },
+  { href: "/revue", label: "Revue du Jour", desc: "Synthèse quotidienne" },
+  { href: "/revue-mensuelle", label: "La Revue", desc: "Publication mensuelle" },
   { href: "/carnets", label: "Les Carnets", desc: "Essais de fond" },
   { href: "/rencontres", label: "Les Rencontres", desc: "Dialogues restreints" },
   { href: "/bibliotheque", label: "La Bibliothèque", desc: "Textes fondateurs" },
@@ -23,7 +24,7 @@ export default function Home() {
       </blockquote>
 
       <div className="w-full max-w-2xl border-t border-noir/10 pt-12">
-        <nav className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <nav className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {sections.map((s) => (
             <Link
               key={s.href}

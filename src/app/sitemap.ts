@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { getCarnets, getRevues } from "@/lib/content";
+import { listEditions } from "@/lib/revue-du-jour/reader";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://jubel.sn";
@@ -11,11 +12,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  const revues = getRevues().map((r) => ({
-    url: `${baseUrl}/revue/${r.meta.slug}`,
+  const revuesMensuelles = getRevues().map((r) => ({
+    url: `${baseUrl}/revue-mensuelle/${r.meta.slug}`,
     lastModified: new Date(r.meta.date),
     changeFrequency: "monthly" as const,
     priority: 0.8,
+  }));
+
+  const revuesDuJour = listEditions().map((e) => ({
+    url: `${baseUrl}/revue/${e.slug}`,
+    lastModified: new Date(e.meta.date),
+    changeFrequency: "daily" as const,
+    priority: 0.9,
   }));
 
   return [
@@ -27,6 +35,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/revue`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/revue-mensuelle`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
@@ -55,7 +69,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.5,
     },
+    ...revuesDuJour,
+    ...revuesMensuelles,
     ...carnets,
-    ...revues,
   ];
 }

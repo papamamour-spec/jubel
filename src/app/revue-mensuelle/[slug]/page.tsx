@@ -34,7 +34,7 @@ export default function RevueDetailPage({
   return (
     <article className="max-w-3xl mx-auto px-6 py-16 md:py-24">
       <Link
-        href="/revue"
+        href="/revue-mensuelle"
         className="text-xs text-noir/40 hover:text-or transition-colors tracking-widest uppercase"
       >
         &larr; La Revue
