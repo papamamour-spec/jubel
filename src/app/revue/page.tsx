@@ -10,8 +10,20 @@ export const metadata: Metadata = {
     "Synthèse quotidienne de la presse sénégalaise par l'Institut Jubël.",
 };
 
-function formatDateLong(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
+function formatDateLong(dateStr: string | Date | number): string {
+  const str = String(dateStr);
+  const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const d = new Date(`${match[1]}-${match[2]}-${match[3]}T12:00:00`);
+    return d.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return str;
   return d.toLocaleDateString("fr-FR", {
     weekday: "long",
     year: "numeric",
