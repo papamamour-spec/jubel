@@ -4,6 +4,9 @@ on:
     - cron: "30 6 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -15,7 +18,6 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.JUBEL_BOT_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
