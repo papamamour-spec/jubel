@@ -9,9 +9,6 @@ const parser = new Parser({
     "User-Agent": "JubelBot/1.0 (+https://jubel.sn)",
     Accept: "application/rss+xml, application/xml, text/xml, */*",
   },
-  requestOptions: {
-    redirect: "follow" as RequestRedirect,
-  },
 });
 const WINDOW_HOURS = 48;
 
