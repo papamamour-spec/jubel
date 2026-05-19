@@ -3,8 +3,17 @@ import crypto from "crypto";
 import { FEEDS } from "../../src/lib/revue-du-jour/feeds";
 import { RawArticle, FeedSource } from "../../src/lib/revue-du-jour/types";
 
-const parser = new Parser({ timeout: 10000 });
-const WINDOW_HOURS = 24;
+const parser = new Parser({
+  timeout: 15000,
+  headers: {
+    "User-Agent": "JubelBot/1.0 (+https://jubel.sn)",
+    Accept: "application/rss+xml, application/xml, text/xml, */*",
+  },
+  requestOptions: {
+    redirect: "follow" as RequestRedirect,
+  },
+});
+const WINDOW_HOURS = 48;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
