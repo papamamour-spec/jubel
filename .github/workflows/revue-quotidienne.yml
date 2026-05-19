@@ -4,15 +4,22 @@ on:
     - cron: "30 6 * * *"
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.JUBEL_BOT_TOKEN }}
 
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with:
+          node-version: 22
 
       - run: npm ci
 
@@ -28,5 +35,4 @@ jobs:
           git config user.name "jubel-bot"
           git config user.email "bot@jubel.sn"
           git add content/revue-du-jour
-          git commit -m "revue: $(date +%Y-%m-%d)" || echo "Pas de changement"
-          git push
+          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "revue: $(date +%Y-%m-%d)" && git push origin main)
