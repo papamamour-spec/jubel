@@ -39,4 +39,4 @@ jobs:
           git config user.name "jubel-bot"
           git config user.email "bot@jubel.sn"
           git add content/revue-du-jour
-          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "revue: $(date +%Y-%m-%d)" && git push origin main)
+          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "revue: $(date +%Y-%m-%d)" && git pull --rebase origin main && git push origin main)
