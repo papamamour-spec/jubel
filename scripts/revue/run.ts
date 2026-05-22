@@ -1,4 +1,6 @@
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 import { collectArticles } from "./collect";
 import { filterArticles } from "./filter";
 import { classifyArticles } from "./classify";
@@ -12,6 +14,12 @@ async function main() {
   const date = new Date().toISOString().split("T")[0];
 
   console.log(`\n=== Revue du Jour — ${date} — Run ${runId} ===\n`);
+
+  const existingFile = path.join(process.cwd(), "content", "revue-du-jour", `${date}.mdx`);
+  if (fs.existsSync(existingFile)) {
+    console.log(`[run] L'édition du ${date} existe déjà. Rien à faire.`);
+    process.exit(0);
+  }
 
   try {
     const { articles, successCount, failedSources } = await collectArticles();
