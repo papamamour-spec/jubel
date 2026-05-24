@@ -14,7 +14,7 @@ const CLASSIFY_PROMPT = fs.readFileSync(
 export async function classifyArticles(
   articles: RawArticle[]
 ): Promise<ClassifiedArticle[]> {
-  const client = new Anthropic();
+  const client = new Anthropic({ timeout: 60000 });
 
   const input = articles.map((a) => ({
     id: a.id,

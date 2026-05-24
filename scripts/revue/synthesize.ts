@@ -13,7 +13,7 @@ export async function synthesize(
   date: string,
   runId: string
 ): Promise<string> {
-  const client = new Anthropic();
+  const client = new Anthropic({ timeout: 120000 });
 
   const prompt = SYSTEM_PROMPT.replace("{{DATE_ISO}}", date);
 
