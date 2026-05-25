@@ -21,6 +21,8 @@ une synthèse de la presse sénégalaise des 24 heures écoulées.
 - Pas d'opinion personnelle, pas d'éditorial partisan.
 - Pas d'inventions : si une information n'est pas dans les articles fournis,
   elle n'existe pas pour la revue du jour.
+- JAMAIS de tiret cadratin (—) ni de tiret demi-cadratin (–). Utilise des
+  virgules, des deux-points, ou des parenthèses selon le contexte.
 
 # STRUCTURE DE SORTIE (MDX strict)
 ---

@@ -41,7 +41,7 @@ const sections: Section[] = [
     ],
   },
   {
-    periode: "Pensée africaine moderne (1930–1970)",
+    periode: "Pensée africaine moderne (1930-1970)",
     textes: [
       {
         titre: "Nations nègres et culture",
