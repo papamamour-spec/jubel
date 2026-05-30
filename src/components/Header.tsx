@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/carnets", label: "Carnets" },
   { href: "/rencontres", label: "Rencontres" },
   { href: "/bibliotheque", label: "Bibliothèque" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Header() {
@@ -16,14 +17,14 @@ export default function Header() {
 
   return (
     <header className="border-b border-noir/5">
-      <nav className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+      <nav className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
         <Link
           href="/"
           className="font-serif text-2xl tracking-wide hover:text-or transition-colors"
         >
           Jubël
         </Link>
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6 lg:gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -62,12 +63,16 @@ export default function Header() {
           </svg>
         </button>
       </nav>
-      <div id="mobile-menu" className="hidden md:hidden border-t border-noir/5 px-6 py-4 space-y-3">
+      <div id="mobile-menu" className="hidden md:hidden border-t border-noir/5 px-6 py-6 space-y-4">
         {navLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={`block text-sm tracking-wide ${
+            onClick={() => {
+              const menu = document.getElementById("mobile-menu");
+              menu?.classList.add("hidden");
+            }}
+            className={`block text-sm tracking-wide py-1 ${
               pathname?.startsWith(link.href)
                 ? "text-or"
                 : "text-noir/60"

@@ -21,6 +21,22 @@
   ::selection {
     @apply bg-or/20 text-noir;
   }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-or/50 ring-offset-2 ring-offset-cream;
+  }
+
+  a, button {
+    @apply transition-colors duration-200;
+  }
+
+  input, textarea {
+    @apply transition-all duration-200;
+  }
+
+  img {
+    @apply transition-opacity duration-300;
+  }
 }
 
 @layer components {
@@ -30,18 +46,22 @@
 
   .prose-jubel h1 {
     @apply font-serif text-3xl md:text-4xl font-medium mb-8 leading-tight;
+    letter-spacing: -0.015em;
   }
 
   .prose-jubel h2 {
     @apply font-serif text-2xl md:text-3xl font-medium mt-16 mb-6 leading-tight;
+    letter-spacing: -0.01em;
   }
 
   .prose-jubel h3 {
     @apply font-serif text-xl md:text-2xl font-normal mt-12 mb-4 italic;
+    letter-spacing: 0.01em;
   }
 
   .prose-jubel p {
-    @apply text-base md:text-lg leading-relaxed mb-6 text-noir/85;
+    @apply text-base leading-relaxed mb-6 text-noir/85;
+    font-size: clamp(1rem, 0.95rem + 0.3vw, 1.175rem);
   }
 
   .prose-jubel blockquote {

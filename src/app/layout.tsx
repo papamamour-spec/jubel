@@ -18,6 +18,25 @@ export const metadata: Metadata = {
     title: "Institut Jubël",
     description:
       "Nous ne cherchons pas à gouverner le Sénégal. Nous cherchons à le comprendre.",
+    url: "https://jubel.sn",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Institut Jubël",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Institut Jubël",
+    description:
+      "Nous ne cherchons pas à gouverner le Sénégal. Nous cherchons à le comprendre.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
   },
   robots: {
     index: true,
