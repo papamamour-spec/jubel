@@ -10,6 +10,7 @@ import Cartoon from "@/components/Cartoon";
 import Comments from "@/components/Comments";
 import ShareButton from "@/components/ShareButton";
 import VisitCounter from "@/components/VisitCounter";
+import WhatsAppChannel from "@/components/WhatsAppChannel";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
@@ -38,13 +39,13 @@ export async function generateMetadata({
       description: edition.meta.chapeau,
       publishedTime: edition.meta.publishedAt,
       section: "Revue du Jour",
-      images: [DEFAULT_OG_IMAGE],
+      images: [{ ...DEFAULT_OG_IMAGE, url: `${path}/og.png`, alt: edition.meta.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: edition.meta.title,
       description: edition.meta.chapeau,
-      images: [DEFAULT_OG_IMAGE.url],
+      images: [`${path}/og.png`],
     },
   };
 }
@@ -104,6 +105,7 @@ export default async function RevueDatePage({
             filename={`revue-du-jour-${date}.pdf`}
           />
         </div>
+        <WhatsAppChannel className="mt-4" />
       </header>
 
       {edition.meta.illustration && (

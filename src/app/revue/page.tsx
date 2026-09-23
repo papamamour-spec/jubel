@@ -9,6 +9,7 @@ import Cartoon from "@/components/Cartoon";
 import Comments from "@/components/Comments";
 import ShareButton from "@/components/ShareButton";
 import VisitCounter from "@/components/VisitCounter";
+import WhatsAppChannel from "@/components/WhatsAppChannel";
 
 export const metadata: Metadata = {
   title: "La Revue du Jour",
@@ -62,6 +63,7 @@ export default function RevueDuJourPage() {
             filename={`revue-du-jour-${latest.slug}.pdf`}
           />
         </div>
+        <WhatsAppChannel className="mt-4" />
       </div>
 
       {latest.meta.illustration && (

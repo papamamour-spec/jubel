@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { dbEnabled, query } from "@/lib/db";
 import { adminTokenValid } from "@/lib/empreinte";
 import { formatDateLong } from "@/lib/dates";
+import { getLatestEdition } from "@/lib/revue-du-jour/reader";
+import { whatsappMessage } from "@/lib/revue-du-jour/whatsapp";
+import { WHATSAPP_CHANNEL_URL } from "@/lib/site";
+import CopyButton from "@/components/CopyButton";
+import ShareButton from "@/components/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +37,32 @@ interface ContributionRow {
   motif: string | null;
   cree_le: string;
   publie_le: string | null;
+}
+
+function Diffusion() {
+  const edition = getLatestEdition();
+  if (!edition) return null;
+  const message = whatsappMessage(edition);
+  const path = `/revue/${edition.slug}`;
+  return (
+    <section className="mb-16 border border-or/60 p-6">
+      <h2 className="font-serif text-xl mb-2">Diffusion WhatsApp</h2>
+      <p className="text-sm text-noir/70 mb-5">
+        Revue du Jour du {formatDateLong(edition.meta.date)}. Sur téléphone, « Partager » ouvre WhatsApp avec le PDF joint :
+        choisissez la chaîne, puis collez le message ci-dessous.
+      </p>
+      <pre className="whitespace-pre-wrap font-sans text-sm bg-noir/[0.03] border border-noir/10 p-4 mb-4">{message}</pre>
+      <div className="flex flex-wrap gap-3 items-start">
+        <CopyButton text={message} label="Copier le message" />
+        <ShareButton pdfUrl={`${path}/pdf`} pageUrl={path} title={`Revue du Jour : ${edition.meta.title}`} filename={`revue-du-jour-${edition.slug}.pdf`} />
+        {WHATSAPP_CHANNEL_URL && (
+          <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer" className="border border-noir/30 px-4 py-2 text-xs tracking-widest uppercase hover:border-or-text hover:text-or-text">
+            Ouvrir la chaîne
+          </a>
+        )}
+      </div>
+    </section>
+  );
 }
 
 function Action({ token, action, id, label }: { token: string; action: string; id: number; label: string }) {
@@ -66,7 +97,12 @@ export default async function AdminPage({
     );
   }
   if (!dbEnabled()) {
-    return <div className="max-w-3xl mx-auto px-6 py-24"><p>Base de données non configurée (DATABASE_URL).</p></div>;
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-16">
+        <Diffusion />
+        <p>Base de données non configurée (DATABASE_URL).</p>
+      </div>
+    );
   }
 
   const [comments, contributions, stats] = await Promise.all([
@@ -93,6 +129,8 @@ export default async function AdminPage({
         {Number(s?.total ?? 0).toLocaleString("fr-FR")} lectures au total, {Number(s?.aujourdhui ?? 0).toLocaleString("fr-FR")} aujourd&apos;hui,{" "}
         {Number(s?.commentaires ?? 0).toLocaleString("fr-FR")} commentaires publiés.
       </p>
+
+      <Diffusion />
 
       <section className="mb-16">
         <h2 className="font-serif text-xl mb-6">Commentaires à relire ({comments.length})</h2>

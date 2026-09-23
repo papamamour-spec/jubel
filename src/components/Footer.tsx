@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Newsletter from "./Newsletter";
 import VisitCounter from "./VisitCounter";
+import WhatsAppChannel from "./WhatsAppChannel";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 export default function Footer() {
@@ -10,6 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
           <div className="max-w-sm">
             <Newsletter />
+            <WhatsAppChannel className="mt-4" />
           </div>
           <div className="text-sm text-noir/75 md:text-right">
             <p className="font-serif text-lg mb-2">Un texte à proposer ?</p>

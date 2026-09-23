@@ -37,13 +37,13 @@ export async function generateMetadata({
       description: revue.meta.description,
       publishedTime: revue.meta.date,
       section: "Revue mensuelle",
-      images: [DEFAULT_OG_IMAGE],
+      images: [{ ...DEFAULT_OG_IMAGE, url: `${path}/og.png`, alt: revue.meta.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: revue.meta.title,
       description: revue.meta.description,
-      images: [DEFAULT_OG_IMAGE.url],
+      images: [`${path}/og.png`],
     },
   };
 }
