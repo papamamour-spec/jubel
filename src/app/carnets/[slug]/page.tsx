@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { mdxOptions } from "@/lib/mdx";
 import { formatDateShort } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
 
@@ -33,11 +34,13 @@ export async function generateMetadata({
       description: carnet.meta.description,
       publishedTime: carnet.meta.date,
       section: "Carnets",
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: carnet.meta.title,
       description: carnet.meta.description,
+      images: [DEFAULT_OG_IMAGE.url],
     },
   };
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
-import { SITE_URL } from "@/lib/site";
+import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
 import TimeAgo from "@/components/TimeAgo";
@@ -31,7 +31,7 @@ export async function generateMetadata({
   const raster = article.meta.illustration && !article.meta.illustration.src.endsWith(".svg");
   const image = raster
     ? [{ url: article.meta.illustration!.src, width: 1536, height: 1024, alt: article.meta.illustration!.alt }]
-    : undefined;
+    : [DEFAULT_OG_IMAGE];
   return {
     title: article.meta.title,
     description: article.meta.chapeau,
@@ -49,7 +49,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: article.meta.title,
       description: article.meta.chapeau,
-      images: image?.map((i) => i.url),
+      images: image.map((i) => i.url),
     },
   };
 }

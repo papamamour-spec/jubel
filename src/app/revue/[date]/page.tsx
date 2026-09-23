@@ -7,6 +7,7 @@ import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
+import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
 
@@ -32,13 +33,15 @@ export async function generateMetadata({
       url: path,
       title: edition.meta.title,
       description: edition.meta.chapeau,
-      publishedTime: edition.meta.date,
+      publishedTime: edition.meta.publishedAt,
       section: "Revue du Jour",
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title: edition.meta.title,
       description: edition.meta.chapeau,
+      images: [DEFAULT_OG_IMAGE.url],
     },
   };
 }
