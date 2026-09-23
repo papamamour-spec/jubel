@@ -53,6 +53,26 @@ ANTHROPIC_API_KEY=... npm run revue
 Pour modifier la voix éditoriale, éditez `prompts/actualite.system.md` ou
 `prompts/revue.system.md`, puis validez sur trois passages avant de pousser.
 
+## Lecteurs, commentaires et contributions
+
+Le site compte ses lecteurs, accepte des commentaires sous chaque texte et
+des contributions libres. Ces fonctions reposent sur une base PostgreSQL
+(plugin Railway) et se masquent d'elles-mêmes si elle n'est pas configurée.
+
+Variables à définir sur Railway :
+
+| Variable | Rôle |
+|---|---|
+| `DATABASE_URL` | fournie par le plugin Postgres |
+| `ADMIN_TOKEN` | jeton long et secret ; ouvre `/admin?token=…` |
+| `ANTHROPIC_API_KEY` | modération automatique des commentaires (sinon tout passe en attente) |
+| `EMPREINTE_SEL` | sel du compteur de lecteurs (facultatif, sinon `ADMIN_TOKEN`) |
+
+La modération se fait sur `/admin` : publier, rejeter ou supprimer les
+commentaires en attente ou signalés ; publier, retirer ou supprimer les
+contributions. La charte appliquée est `prompts/moderation.md` et sa version
+publique `/charte-des-commentaires`.
+
 ## Ajouter un Carnet
 
 1. Créez `content/carnets/nom-du-carnet.mdx` (minuscules, sans accents,

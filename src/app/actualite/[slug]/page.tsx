@@ -10,6 +10,8 @@ import { DEFAULT_OG_IMAGE, SITE_URL } from "@/lib/site";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
 import TimeAgo from "@/components/TimeAgo";
+import Comments from "@/components/Comments";
+import VisitCounter from "@/components/VisitCounter";
 
 export const dynamicParams = false;
 
@@ -137,6 +139,7 @@ export default async function ArticlePage({
         <time dateTime={article.meta.publishedAt}>
           Publié le {formatDateLong(article.meta.date)}
         </time>
+        <VisitCounter chemin={path} />
         <Link href="/revue/methodologie" className="hover:text-or-text">
           Méthodologie
         </Link>
@@ -146,6 +149,7 @@ export default async function ArticlePage({
           </Link>
         )}
       </footer>
+      <Comments slug={slug} />
     </article>
   );
 }

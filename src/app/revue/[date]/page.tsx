@@ -7,6 +7,8 @@ import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
+import Comments from "@/components/Comments";
+import VisitCounter from "@/components/VisitCounter";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
 export const dynamicParams = false;
@@ -106,10 +108,12 @@ export default async function RevueDatePage({
       <footer className="border-t border-noir/10 mt-16 pt-6 flex flex-wrap gap-6 text-xs text-noir/70">
         <span>{edition.meta.sourcesCount} sources consultées</span>
         <span>Temps de lecture : {edition.meta.readingTime} min</span>
+        <VisitCounter chemin={path} />
         <Link href="/revue/methodologie" className="hover:text-or-text">
           Méthodologie
         </Link>
       </footer>
+      <Comments slug={`revue-${date}`} />
     </article>
   );
 }

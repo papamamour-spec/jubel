@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/revue", label: "Revue du Jour" },
   { href: "/dossiers", label: "Dossiers" },
   { href: "/bibliotheque", label: "Bibliothèque" },
+  { href: "/contributions", label: "Contributions" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -16,6 +17,9 @@ function isActive(pathname: string | null, href: string): boolean {
   if (!pathname) return false;
   if (href === "/revue") {
     return pathname === "/revue" || pathname.startsWith("/revue/");
+  }
+  if (href === "/contributions") {
+    return pathname.startsWith("/contributions") || pathname.startsWith("/contribuer");
   }
   if (href === "/dossiers") {
     return (

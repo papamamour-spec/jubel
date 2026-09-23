@@ -119,6 +119,23 @@ export default function MethodologiePage() {
           pas d&apos;une signature.
         </p>
 
+        <h2>Lecteurs, commentaires et contributions</h2>
+
+        <p>
+          Le nombre de lecteurs affiché sur le site est mesuré sans cookie ni
+          service tiers : une empreinte technique anonyme, salée et renouvelée
+          chaque jour, permet de compter chaque lecteur une fois par jour et
+          par page, puis est effacée sous quarante-huit heures. Elle ne permet
+          pas d&apos;identifier une personne.
+        </p>
+
+        <p>
+          Les commentaires et les contributions de lecteurs sont soumis à la{" "}
+          <Link href="/charte-des-commentaires">charte des commentaires</Link>,
+          appliquée par une modération automatique puis, au besoin, par
+          l&apos;Institut.
+        </p>
+
         <h2>Correction et retrait</h2>
 
         <p>

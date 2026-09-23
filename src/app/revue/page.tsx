@@ -6,6 +6,8 @@ import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
+import Comments from "@/components/Comments";
+import VisitCounter from "@/components/VisitCounter";
 
 export const metadata: Metadata = {
   title: "La Revue du Jour",
@@ -64,10 +66,13 @@ export default function RevueDuJourPage() {
       <footer className="border-t border-noir/10 mt-16 pt-6 flex flex-wrap gap-6 text-xs text-noir/70">
         <span>{latest.meta.sourcesCount} sources consultées</span>
         <span>Temps de lecture : {latest.meta.readingTime} min</span>
+        <VisitCounter chemin={`/revue/${latest.slug}`} />
         <Link href="/revue/methodologie" className="hover:text-or-text">
           Méthodologie
         </Link>
       </footer>
+
+      <Comments slug={`revue-${latest.slug}`} />
 
       {archive.length > 0 && (
         <section className="mt-20" aria-labelledby="archives">

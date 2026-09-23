@@ -1,5 +1,6 @@
 import { formatDateLong } from "@/lib/dates";
 import TimeAgo from "./TimeAgo";
+import VisitCounter from "./VisitCounter";
 
 export default function Masthead({
   date,
@@ -20,6 +21,7 @@ export default function Masthead({
             <TimeAgo iso={updatedAt} fallback={formatDateLong(updatedAt)} className="text-cream" />
           </span>
           {sourcesCount > 0 && <span>{sourcesCount} sources consultées</span>}
+          <VisitCounter variant="today" className="text-cream" />
         </span>
       </div>
     </div>

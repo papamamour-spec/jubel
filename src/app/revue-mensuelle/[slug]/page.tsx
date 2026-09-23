@@ -7,6 +7,8 @@ import { mdxOptions } from "@/lib/mdx";
 import { formatMonthYear } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
+import Comments from "@/components/Comments";
+import VisitCounter from "@/components/VisitCounter";
 
 export const dynamicParams = false;
 
@@ -109,9 +111,11 @@ export default async function RevueDetailPage({
         <MDXRemote source={revue.content} options={mdxOptions} />
       </div>
 
-      <footer className="border-t border-noir/10 mt-16 pt-6 text-xs text-noir/70">
-        {revue.meta.readingTime} min de lecture
+      <footer className="border-t border-noir/10 mt-16 pt-6 flex flex-wrap gap-6 text-xs text-noir/70">
+        <span>{revue.meta.readingTime} min de lecture</span>
+        <VisitCounter chemin={path} />
       </footer>
+      <Comments slug={`mensuelle-${slug}`} />
     </article>
   );
 }

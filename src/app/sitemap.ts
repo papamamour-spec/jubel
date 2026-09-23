@@ -25,6 +25,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/rencontres`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/revue/methodologie`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE_URL}/charte-du-dessin`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${SITE_URL}/charte-des-commentaires`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${SITE_URL}/contribuer`, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${SITE_URL}/contributions`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/contact`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
