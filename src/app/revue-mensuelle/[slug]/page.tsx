@@ -8,6 +8,7 @@ import { formatMonthYear } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
 import Comments from "@/components/Comments";
+import ShareButton from "@/components/ShareButton";
 import VisitCounter from "@/components/VisitCounter";
 
 export const dynamicParams = false;
@@ -105,6 +106,14 @@ export default async function RevueDetailPage({
             ))}
           </ul>
         )}
+        <div className="mt-8">
+          <ShareButton
+            pdfUrl={`${path}/pdf`}
+            pageUrl={path}
+            title={`${revue.meta.title}, ${formatMonthYear(revue.meta.date)}`}
+            filename={`revue-jubel-${slug}.pdf`}
+          />
+        </div>
       </header>
 
       <div className="prose-jubel">

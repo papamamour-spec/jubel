@@ -7,6 +7,7 @@ import { formatDateLong } from "@/lib/dates";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
 import Comments from "@/components/Comments";
+import ShareButton from "@/components/ShareButton";
 import VisitCounter from "@/components/VisitCounter";
 
 export const metadata: Metadata = {
@@ -53,6 +54,14 @@ export default function RevueDuJourPage() {
         {latest.meta.chapeau && (
           <p className="text-noir/75 text-lg italic mt-4">{latest.meta.chapeau}</p>
         )}
+        <div className="mt-6">
+          <ShareButton
+            pdfUrl={`/revue/${latest.slug}/pdf`}
+            pageUrl={`/revue/${latest.slug}`}
+            title={`Revue du Jour : ${latest.meta.title}`}
+            filename={`revue-du-jour-${latest.slug}.pdf`}
+          />
+        </div>
       </div>
 
       {latest.meta.illustration && (

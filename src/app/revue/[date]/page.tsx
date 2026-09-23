@@ -8,6 +8,7 @@ import { formatDateLong } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 import Cartoon from "@/components/Cartoon";
 import Comments from "@/components/Comments";
+import ShareButton from "@/components/ShareButton";
 import VisitCounter from "@/components/VisitCounter";
 import { DEFAULT_OG_IMAGE } from "@/lib/site";
 
@@ -95,6 +96,14 @@ export default async function RevueDatePage({
         {edition.meta.chapeau && (
           <p className="text-noir/70 italic mt-3">{edition.meta.chapeau}</p>
         )}
+        <div className="mt-6">
+          <ShareButton
+            pdfUrl={`${path}/pdf`}
+            pageUrl={path}
+            title={`Revue du Jour : ${edition.meta.title}`}
+            filename={`revue-du-jour-${date}.pdf`}
+          />
+        </div>
       </header>
 
       {edition.meta.illustration && (

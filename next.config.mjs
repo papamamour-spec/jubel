@@ -32,6 +32,7 @@ const securityHeaders = [
 const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  serverExternalPackages: ["@react-pdf/renderer"],
   images: { unoptimized: true },
   async headers() {
     return [
