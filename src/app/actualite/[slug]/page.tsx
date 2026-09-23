@@ -26,8 +26,11 @@ export async function generateMetadata({
   const article = getArticle(slug);
   if (!article) return {};
   const path = `/actualite/${slug}`;
-  const image = article.meta.illustration
-    ? [{ url: article.meta.illustration.src, width: 1536, height: 1024, alt: article.meta.illustration.alt }]
+  // Social networks do not render SVG previews; fallback cartoons keep the
+  // site-wide generated image instead.
+  const raster = article.meta.illustration && !article.meta.illustration.src.endsWith(".svg");
+  const image = raster
+    ? [{ url: article.meta.illustration!.src, width: 1536, height: 1024, alt: article.meta.illustration!.alt }]
     : undefined;
   return {
     title: article.meta.title,
@@ -75,7 +78,7 @@ export default async function ArticlePage({
             datePublished: article.meta.publishedAt,
             section: label,
           }),
-          ...(article.meta.illustration
+          ...(article.meta.illustration && !article.meta.illustration.src.endsWith(".svg")
             ? { image: [`${SITE_URL}${article.meta.illustration.src}`] }
             : {}),
         }}
