@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "La Bibliothèque",
-  description: "Textes fondateurs sélectionnés par l'Institut Jubël. Lectures essentielles pour comprendre le Sénégal et l'Afrique.",
+  description:
+    "Textes fondateurs sélectionnés par l'Institut Jubël. Lectures essentielles pour comprendre le Sénégal et l'Afrique.",
+  alternates: { canonical: "/bibliotheque" },
 };
 
 interface Texte {
@@ -132,41 +135,58 @@ const sections: Section[] = [
 export default function BibliothequePage() {
   return (
     <div className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+      <JsonLd data={breadcrumbJsonLd([{ name: "Bibliothèque", path: "/bibliotheque" }])} />
       <h1 className="font-serif text-3xl md:text-4xl mb-4">La Bibliothèque</h1>
-      <p className="text-noir/50 mb-16 max-w-xl">
-        Textes fondateurs. Lectures essentielles pour comprendre d'où nous venons
-        et imaginer où nous allons. Liens vers des sources publiques uniquement.
+      <p className="text-noir/70 mb-16 max-w-xl">
+        Textes fondateurs. Lectures essentielles pour comprendre d&apos;où nous
+        venons et imaginer où nous allons. Liens vers des sources publiques
+        uniquement.
       </p>
 
       <div className="space-y-20">
         {sections.map((section) => (
-          <section key={section.periode}>
-            <h2 className="font-serif text-xl text-or mb-8">{section.periode}</h2>
-            <div className="space-y-10">
+          <section key={section.periode} aria-labelledby={slugId(section.periode)}>
+            <h2
+              id={slugId(section.periode)}
+              className="font-serif text-xl text-or-text mb-8"
+            >
+              {section.periode}
+            </h2>
+            <ul className="space-y-10">
               {section.textes.map((texte) => (
-                <div key={texte.titre} className="border-l-2 border-noir/5 pl-6">
+                <li key={texte.titre} className="border-l-2 border-or pl-6">
                   <h3 className="font-serif text-lg">
                     <a
                       href={texte.lien}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-or transition-colors"
+                      className="hover:text-or-text"
                     >
                       {texte.titre}
+                      <span className="sr-only"> (nouvelle fenêtre)</span>
                     </a>
                   </h3>
-                  <p className="text-sm text-noir/50 mt-1">
+                  <p className="text-sm text-noir/70 mt-1">
                     {texte.auteur}, {texte.date}
                   </p>
-                  <p className="text-sm text-noir/60 mt-3 leading-relaxed">
+                  <p className="text-sm text-noir/80 mt-3 leading-relaxed">
                     {texte.resume}
                   </p>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         ))}
       </div>
     </div>
   );
+}
+
+function slugId(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }

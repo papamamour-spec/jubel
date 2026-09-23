@@ -1,45 +1,30 @@
-import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { ClassifiedArticle } from "../../src/lib/revue-du-jour/types";
+import { createClient, extractText, MODELS, withRetry } from "../lib/anthropic";
+import { finalizeArticle } from "../lib/frontmatter";
+import { slugify } from "../lib/text";
+import { Topic } from "../lib/types";
 
 const SYSTEM_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "prompts", "actualite.system.md"),
   "utf-8"
 );
 
-interface Topic {
-  topic: string;
-  category: string;
-  articleIds: string[];
-  importance: number;
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, "-")
-    .slice(0, 60);
-}
-
 export async function generateArticle(
   topic: Topic,
   articles: ClassifiedArticle[],
   date: string,
   runId: string
-): Promise<{ slug: string; mdx: string } | null> {
-  const client = new Anthropic({ timeout: 120000 });
+): Promise<{ slug: string; mdx: string; title: string }> {
+  const topicArticles = articles.filter((a) => topic.articleIds.includes(a.id));
+  if (topicArticles.length < 2) {
+    throw new Error(`Topic "${topic.topic}" has fewer than 2 source articles`);
+  }
 
-  const topicArticles = articles.filter((a) =>
-    topic.articleIds.includes(a.id)
-  );
-
-  if (topicArticles.length < 2) return null;
-
-  const prompt = SYSTEM_PROMPT.replace("{{DATE_ISO}}", date);
+  const client = createClient(120000);
+  const prompt = SYSTEM_PROMPT.replaceAll("{{DATE_ISO}}", date);
+  const sources = Array.from(new Set(topicArticles.map((a) => a.source)));
 
   const input = {
     topic: topic.topic,
@@ -52,30 +37,24 @@ export async function generateArticle(
     })),
   };
 
-  try {
+  const mdx = await withRetry(`article:${slugify(topic.topic, 30)}`, 2, async () => {
     const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: MODELS.editorial,
       max_tokens: 2048,
       system: prompt,
       messages: [{ role: "user", content: JSON.stringify(input) }],
     });
+    return finalizeArticle(
+      extractText(response),
+      { date, sources },
+      { model: MODELS.editorial, runId }
+    );
+  });
 
-    let mdx =
-      response.content[0].type === "text" ? response.content[0].text : "";
-
-    const internalBlock = [
-      "_internal:",
-      `  model: "claude-sonnet-4-6"`,
-      `  generatedAt: "${new Date().toISOString()}"`,
-      `  runId: "${runId}"`,
-    ].join("\n");
-
-    mdx = mdx.replace(/^---\n([\s\S]*?)\n---/, `---\n$1\n${internalBlock}\n---`);
-
-    const slug = `${date}-${slugify(topic.topic)}`;
-    return { slug, mdx };
-  } catch (err) {
-    console.error(`[article] Failed for "${topic.topic}": ${err}`);
-    return null;
-  }
+  const titleMatch = mdx.match(/^title: "(.*)"$/m);
+  return {
+    slug: `${date}-${slugify(topic.topic)}`,
+    mdx,
+    title: titleMatch ? JSON.parse(`"${titleMatch[1]}"`) : topic.topic,
+  };
 }

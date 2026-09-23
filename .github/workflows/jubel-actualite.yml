@@ -6,18 +6,26 @@ on:
     - cron: "0 14 * * *"
     - cron: "0 18 * * *"
   workflow_dispatch:
+    inputs:
+      revue:
+        description: "Générer aussi la Revue du Jour"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
+
+concurrency:
+  group: jubel-content
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  revue:
+  publier:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,54 +34,50 @@ jobs:
           token: ${{ github.token }}
 
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
+        with:
+          node-version: 22
+          cache: npm
 
       - run: npm ci
 
-      - name: Generer la Revue du Jour
+      - name: Vérifier les types des scripts
+        run: npm run typecheck:scripts
+
+      - name: Générer la Revue du Jour
+        id: revue
+        if: github.event.schedule == '0 6 * * *' || (github.event_name == 'workflow_dispatch' && inputs.revue)
+        continue-on-error: true
         timeout-minutes: 7
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
         run: npx tsx scripts/revue/run.ts
 
-      - name: Generer les articles d'actualite
-        timeout-minutes: 7
+      - name: Générer les analyses d'actualité
+        id: actualite
+        continue-on-error: true
+        timeout-minutes: 8
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: npx tsx scripts/actualite/run.ts
 
-      - name: Commit et push
+      - name: Publier
+        if: always()
         run: |
           git config user.name "jubel-bot"
           git config user.email "bot@jubel.sn"
           git add content/revue-du-jour content/actualite
-          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "jubel: revue + actualite $(date +%Y-%m-%d)" && git pull --rebase origin main && git push origin main)
+          if git diff --staged --quiet; then
+            echo "Aucun nouveau contenu"
+          else
+            git commit -m "contenu: $(date -u +%Y-%m-%d-%H%M)"
+            git pull --rebase origin main
+            git push origin main
+          fi
 
-  actualite:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    if: github.event.schedule == '0 10 * * *' || github.event.schedule == '0 14 * * *' || github.event.schedule == '0 18 * * *'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-          token: ${{ github.token }}
-
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-
-      - run: npm ci
-
-      - name: Generer les articles d'actualite
-        timeout-minutes: 7
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: npx tsx scripts/actualite/run.ts
-
-      - name: Commit et push
+      - name: Signaler un échec de génération
+        if: steps.revue.outcome == 'failure' || steps.actualite.outcome == 'failure'
         run: |
-          git config user.name "jubel-bot"
-          git config user.email "bot@jubel.sn"
-          git add content/actualite
-          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "actualite: $(date +%Y-%m-%d-%H%M)" && git pull --rebase origin main && git push origin main)
+          echo "::error::Revue: ${{ steps.revue.outcome }} / Actualité: ${{ steps.actualite.outcome }}"
+          exit 1

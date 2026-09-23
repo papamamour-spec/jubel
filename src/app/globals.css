@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
-
 @layer base {
   html {
     @apply bg-cream text-noir antialiased;
@@ -19,11 +17,11 @@
   }
 
   ::selection {
-    @apply bg-or/20 text-noir;
+    @apply bg-or/25 text-noir;
   }
 
   *:focus-visible {
-    @apply outline-none ring-2 ring-or/50 ring-offset-2 ring-offset-cream;
+    @apply outline-none ring-2 ring-noir ring-offset-2 ring-offset-cream;
   }
 
   a, button {
@@ -31,15 +29,26 @@
   }
 
   input, textarea {
-    @apply transition-all duration-200;
+    @apply transition-colors duration-200;
   }
 
-  img {
-    @apply transition-opacity duration-300;
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
 @layer components {
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-cream focus:text-noir focus:px-4 focus:py-2 focus:border focus:border-noir;
+  }
+
   .prose-jubel {
     @apply max-w-3xl mx-auto;
   }
@@ -60,20 +69,20 @@
   }
 
   .prose-jubel p {
-    @apply text-base leading-relaxed mb-6 text-noir/85;
+    @apply leading-relaxed mb-6 text-noir/90;
     font-size: clamp(1rem, 0.95rem + 0.3vw, 1.175rem);
   }
 
   .prose-jubel blockquote {
-    @apply border-l-2 border-or/40 pl-6 my-8 italic text-noir/70;
+    @apply border-l-2 border-or pl-6 my-8 italic text-noir/80;
   }
 
   .prose-jubel ul {
-    @apply list-disc pl-6 mb-6 space-y-2 text-noir/85;
+    @apply list-disc pl-6 mb-6 space-y-2 text-noir/90;
   }
 
   .prose-jubel ol {
-    @apply list-decimal pl-6 mb-6 space-y-2 text-noir/85;
+    @apply list-decimal pl-6 mb-6 space-y-2 text-noir/90;
   }
 
   .prose-jubel hr {
@@ -81,7 +90,7 @@
   }
 
   .prose-jubel a {
-    @apply text-or hover:text-or/80 underline underline-offset-4 transition-colors;
+    @apply text-or-text hover:text-noir underline underline-offset-4 decoration-or transition-colors;
   }
 
   .prose-jubel strong {

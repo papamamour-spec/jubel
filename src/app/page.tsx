@@ -2,23 +2,9 @@ import Link from "next/link";
 import { getLatestEdition } from "@/lib/revue-du-jour/reader";
 import { getLatestArticles } from "@/lib/actualite/reader";
 import { getCarnets } from "@/lib/content";
-import { CATEGORIES } from "@/lib/actualite/types";
-
-function formatDate(dateStr: string | Date): string {
-  const str = String(dateStr);
-  const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if (!match) return str;
-  const d = new Date(`${match[1]}-${match[2]}-${match[3]}T12:00:00`);
-  return d.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function getCategoryLabel(id: string): string {
-  return CATEGORIES.find((c) => c.id === id)?.label || id;
-}
+import { CATEGORIES, categoryLabel } from "@/lib/actualite/types";
+import { formatDateShort } from "@/lib/dates";
+import { TAGLINE } from "@/lib/site";
 
 export default function Home() {
   const latestRevue = getLatestEdition();
@@ -27,45 +13,45 @@ export default function Home() {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12 md:py-20">
-      <header className="text-center mb-16">
-        <p
-          className="text-[0.65rem] tracking-[0.3em] uppercase text-noir/35 mb-4"
-          style={{ fontVariant: "small-caps" }}
-        >
-          Institut Jubel
+      <div className="text-center mb-16">
+        <h1 className="text-[0.7rem] tracking-[0.3em] uppercase text-noir/70 mb-4">
+          Institut Jubël
+        </h1>
+        <p className="font-serif text-lg md:text-xl text-noir/80 italic max-w-xl mx-auto">
+          {TAGLINE}
         </p>
-        <p className="font-serif text-lg md:text-xl text-noir/60 italic max-w-xl mx-auto">
-          Nous ne cherchons pas a gouverner le Senegal. Nous cherchons a le
-          comprendre.
-        </p>
-      </header>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
-        {/* Colonne principale */}
-        <div className="lg:col-span-2 space-y-12">
-          {/* Revue du Jour */}
+        <div className="lg:col-span-2 space-y-14">
           {latestRevue && (
-            <section>
+            <section aria-labelledby="home-revue">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xs tracking-widest uppercase text-or">
+                <h2
+                  id="home-revue"
+                  className="text-xs tracking-widest uppercase text-or-text"
+                >
                   Revue du Jour
                 </h2>
                 <Link
                   href="/revue"
-                  className="text-xs text-noir/30 hover:text-or transition-colors"
+                  className="text-xs text-noir/70 hover:text-or-text"
                 >
-                  Archives
+                  Toutes les éditions
                 </Link>
               </div>
               <Link href={`/revue/${latestRevue.slug}`} className="group block">
-                <time className="text-xs text-noir/30">
-                  {formatDate(latestRevue.meta.date)}
+                <time
+                  dateTime={latestRevue.meta.date}
+                  className="text-xs text-noir/65"
+                >
+                  {formatDateShort(latestRevue.meta.date)}
                 </time>
-                <h3 className="font-serif text-xl md:text-2xl mt-2 group-hover:text-or transition-colors leading-tight">
+                <h3 className="font-serif text-xl md:text-2xl mt-2 group-hover:text-or-text leading-tight">
                   {latestRevue.meta.title}
                 </h3>
                 {latestRevue.meta.chapeau && (
-                  <p className="text-noir/50 text-sm mt-2 italic">
+                  <p className="text-noir/70 text-sm mt-2 italic">
                     {latestRevue.meta.chapeau}
                   </p>
                 )}
@@ -73,18 +59,20 @@ export default function Home() {
             </section>
           )}
 
-          {/* Dernieres analyses */}
           {latestArticles.length > 0 && (
-            <section>
+            <section aria-labelledby="home-analyses">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xs tracking-widest uppercase text-or">
-                  Dernieres analyses
+                <h2
+                  id="home-analyses"
+                  className="text-xs tracking-widest uppercase text-or-text"
+                >
+                  Dernières analyses
                 </h2>
                 <Link
                   href="/actualite"
-                  className="text-xs text-noir/30 hover:text-or transition-colors"
+                  className="text-xs text-noir/70 hover:text-or-text"
                 >
-                  Tout voir
+                  Toutes les analyses
                 </Link>
               </div>
               <div className="space-y-8">
@@ -92,18 +80,21 @@ export default function Home() {
                   <article key={article.slug} className="group">
                     <Link href={`/actualite/${article.slug}`}>
                       <div className="flex items-center gap-3 mb-1">
-                        <span className="text-[0.65rem] uppercase tracking-widest text-or/70">
-                          {getCategoryLabel(article.meta.category)}
+                        <span className="text-[0.7rem] uppercase tracking-widest text-or-text">
+                          {categoryLabel(article.meta.category)}
                         </span>
-                        <time className="text-[0.65rem] text-noir/25">
-                          {formatDate(article.meta.date)}
+                        <time
+                          dateTime={article.meta.date}
+                          className="text-[0.7rem] text-noir/65"
+                        >
+                          {formatDateShort(article.meta.date)}
                         </time>
                       </div>
-                      <h3 className="font-serif text-lg group-hover:text-or transition-colors leading-tight">
+                      <h3 className="font-serif text-lg group-hover:text-or-text leading-tight">
                         {article.meta.title}
                       </h3>
                       {article.meta.chapeau && (
-                        <p className="text-noir/45 text-sm mt-1 line-clamp-2">
+                        <p className="text-noir/70 text-sm mt-1 line-clamp-2">
                           {article.meta.chapeau}
                         </p>
                       )}
@@ -113,96 +104,76 @@ export default function Home() {
               </div>
             </section>
           )}
-
-          {/* Fallback si pas encore d'articles */}
-          {latestArticles.length === 0 && !latestRevue && (
-            <section className="text-center py-20">
-              <p className="font-serif text-2xl md:text-3xl text-noir/90 leading-relaxed">
-                Nous ne cherchons pas a gouverner le Senegal.
-              </p>
-              <p className="font-serif text-2xl md:text-3xl text-noir/90 mt-2">
-                Nous cherchons a le comprendre.
-              </p>
-              <p className="font-serif text-xl text-noir/60 mt-4 italic">
-                Et a mettre cette comprehension au service de ceux qui le
-                servent.
-              </p>
-            </section>
-          )}
         </div>
 
-        {/* Sidebar */}
         <aside className="space-y-12">
-          {/* Categories */}
-          <section>
-            <h2 className="text-xs tracking-widest uppercase text-or mb-4">
+          <section aria-labelledby="home-rubriques">
+            <h2
+              id="home-rubriques"
+              className="text-xs tracking-widest uppercase text-or-text mb-4"
+            >
               Rubriques
             </h2>
-            <div className="space-y-2">
+            <ul className="space-y-2">
               {CATEGORIES.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/actualite?cat=${cat.id}`}
-                  className="block text-sm text-noir/50 hover:text-or transition-colors py-1"
-                >
-                  {cat.label}
-                </Link>
+                <li key={cat.id}>
+                  <Link
+                    href={`/actualite/categorie/${cat.id}`}
+                    className="block text-sm text-noir/70 hover:text-or-text py-1"
+                  >
+                    {cat.label}
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
-          {/* Dernier Carnet */}
           {latestCarnet && (
-            <section>
-              <h2 className="text-xs tracking-widest uppercase text-or mb-4">
+            <section aria-labelledby="home-carnet">
+              <h2
+                id="home-carnet"
+                className="text-xs tracking-widest uppercase text-or-text mb-4"
+              >
                 Dernier Carnet
               </h2>
               <Link
                 href={`/carnets/${latestCarnet.meta.slug}`}
                 className="group block"
               >
-                <span className="text-xs text-noir/30">
-                  Carnet n{"°"}
-                  {latestCarnet.meta.numero}
+                <span className="text-xs text-noir/65">
+                  Carnet n°{latestCarnet.meta.numero}
                 </span>
-                <h3 className="font-serif text-base mt-1 group-hover:text-or transition-colors leading-snug">
+                <h3 className="font-serif text-base mt-1 group-hover:text-or-text leading-snug">
                   {latestCarnet.meta.title}
                 </h3>
               </Link>
             </section>
           )}
 
-          {/* Navigation */}
-          <section>
-            <h2 className="text-xs tracking-widest uppercase text-or mb-4">
+          <section aria-labelledby="home-explorer">
+            <h2
+              id="home-explorer"
+              className="text-xs tracking-widest uppercase text-or-text mb-4"
+            >
               Explorer
             </h2>
-            <div className="space-y-2">
-              <Link
-                href="/dossiers"
-                className="block text-sm text-noir/50 hover:text-or transition-colors py-1"
-              >
-                Les Dossiers
-              </Link>
-              <Link
-                href="/bibliotheque"
-                className="block text-sm text-noir/50 hover:text-or transition-colors py-1"
-              >
-                Bibliotheque
-              </Link>
-              <Link
-                href="/rencontres"
-                className="block text-sm text-noir/50 hover:text-or transition-colors py-1"
-              >
-                Rencontres
-              </Link>
-              <Link
-                href="/revue/methodologie"
-                className="block text-sm text-noir/50 hover:text-or transition-colors py-1"
-              >
-                Methodologie
-              </Link>
-            </div>
+            <ul className="space-y-2">
+              {[
+                { href: "/dossiers", label: "Les Dossiers" },
+                { href: "/bibliotheque", label: "La Bibliothèque" },
+                { href: "/rencontres", label: "Les Rencontres" },
+                { href: "/revue/methodologie", label: "Méthodologie" },
+              ].map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="block text-sm text-noir/70 hover:text-or-text py-1"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         </aside>
       </div>

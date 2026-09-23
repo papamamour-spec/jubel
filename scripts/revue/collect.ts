@@ -10,10 +10,17 @@ const parser = new Parser({
     Accept: "application/rss+xml, application/xml, text/xml, */*",
   },
 });
-const WINDOW_HOURS = 48;
+
+const WINDOW_HOURS = 24;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+}
+
+function parseDate(value: string | undefined): Date | null {
+  if (!value) return null;
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 async function fetchFeed(
@@ -21,28 +28,29 @@ async function fetchFeed(
 ): Promise<{ articles: RawArticle[]; success: boolean }> {
   try {
     const feed = await parser.parseURL(source.url);
-    const cutoff = new Date(Date.now() - WINDOW_HOURS * 60 * 60 * 1000);
+    const cutoff = Date.now() - WINDOW_HOURS * 60 * 60 * 1000;
 
-    const articles: RawArticle[] = (feed.items || [])
-      .filter((item) => {
-        if (!item.pubDate) return true;
-        return new Date(item.pubDate) >= cutoff;
-      })
-      .map((item) => ({
+    const articles: RawArticle[] = [];
+    for (const item of feed.items ?? []) {
+      const published = parseDate(item.isoDate ?? item.pubDate);
+      if (!published || published.getTime() < cutoff) continue;
+      const title = (item.title ?? "").trim();
+      const url = (item.link ?? "").trim();
+      if (title.length <= 10 || !/^https?:\/\//.test(url)) continue;
+
+      articles.push({
         id: crypto
           .createHash("md5")
-          .update(`${source.name}:${item.title || ""}`)
+          .update(`${source.name}:${title}`)
           .digest("hex")
           .slice(0, 12),
         source: source.name,
-        title: (item.title || "").trim(),
-        url: item.link || "",
-        summary: stripHtml(
-          item.contentSnippet || item.content || item.title || ""
-        ).slice(0, 500),
-        publishedAt: item.pubDate || new Date().toISOString(),
-      }))
-      .filter((a) => a.title.length > 10);
+        title,
+        url,
+        summary: stripHtml(item.contentSnippet ?? item.content ?? title).slice(0, 500),
+        publishedAt: published.toISOString(),
+      });
+    }
 
     console.log(`[collect] ${source.name}: ${articles.length} articles`);
     return { articles, success: true };
@@ -55,19 +63,21 @@ async function fetchFeed(
 export async function collectArticles(): Promise<{
   articles: RawArticle[];
   successCount: number;
+  totalSources: number;
   failedSources: string[];
 }> {
-  const results = await Promise.all(FEEDS.map(fetchFeed));
+  const active = FEEDS.filter((f) => f.enabled !== false);
+  const results = await Promise.all(active.map(fetchFeed));
 
   const articles = results.flatMap((r) => r.articles);
   const successCount = results.filter((r) => r.success).length;
-  const failedSources = FEEDS.filter((_, i) => !results[i].success).map(
-    (f) => f.name
-  );
+  const failedSources = active
+    .filter((_, i) => !results[i].success)
+    .map((f) => f.name);
 
   console.log(
-    `[collect] Total: ${articles.length} articles from ${successCount}/${FEEDS.length} sources`
+    `[collect] Total: ${articles.length} articles from ${successCount}/${active.length} sources`
   );
 
-  return { articles, successCount, failedSources };
+  return { articles, successCount, totalSources: active.length, failedSources };
 }

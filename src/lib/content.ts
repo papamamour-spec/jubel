@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
+import { parseFrontMatter } from "@/lib/frontmatter";
+import { readingTimeMinutes, toISODate } from "@/lib/dates";
 
 const contentDir = path.join(process.cwd(), "content");
 
@@ -8,10 +9,10 @@ export interface ContentMeta {
   title: string;
   date: string;
   slug: string;
-  description?: string;
+  description: string;
+  readingTime: number;
   rubriques?: string[];
   numero?: number;
-  [key: string]: unknown;
 }
 
 export interface ContentItem {
@@ -23,19 +24,27 @@ function getContentFromDir(dir: string): ContentItem[] {
   const fullDir = path.join(contentDir, dir);
   if (!fs.existsSync(fullDir)) return [];
 
-  const files = fs.readdirSync(fullDir).filter((f) => f.endsWith(".mdx"));
-
-  return files
+  return fs
+    .readdirSync(fullDir)
+    .filter((f) => f.endsWith(".mdx"))
     .map((file) => {
       const raw = fs.readFileSync(path.join(fullDir, file), "utf-8");
-      const { data, content } = matter(raw);
+      const { data, content } = parseFrontMatter(raw);
       const slug = file.replace(/\.mdx$/, "");
-      return {
-        meta: { ...data, slug } as ContentMeta,
-        content,
+      const meta: ContentMeta = {
+        title: String(data.title ?? slug),
+        date: toISODate(data.date),
+        slug,
+        description: String(data.description ?? ""),
+        readingTime: readingTimeMinutes(content),
+        rubriques: Array.isArray(data.rubriques)
+          ? data.rubriques.map(String)
+          : undefined,
+        numero: data.numero !== undefined ? Number(data.numero) : undefined,
       };
+      return { meta, content };
     })
-    .sort((a, b) => new Date(b.meta.date).getTime() - new Date(a.meta.date).getTime());
+    .sort((a, b) => b.meta.date.localeCompare(a.meta.date));
 }
 
 export function getCarnets(): ContentItem[] {

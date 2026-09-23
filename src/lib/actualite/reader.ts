@@ -1,9 +1,28 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
-import { Article, ArticleFrontmatter, CategoryId } from "./types";
+import { parseFrontMatter } from "@/lib/frontmatter";
+import { readingTimeMinutes, toISODate } from "@/lib/dates";
+import { Article, ArticleFrontmatter, CategoryId, isCategoryId } from "./types";
 
 const contentDir = path.join(process.cwd(), "content", "actualite");
+
+function load(file: string): Article | null {
+  const raw = fs.readFileSync(path.join(contentDir, file), "utf-8");
+  const { data, content } = parseFrontMatter(raw);
+  const slug = file.replace(/\.mdx$/, "");
+  const category = String(data.category ?? "");
+  if (!isCategoryId(category) || !data.title) return null;
+
+  const meta: ArticleFrontmatter = {
+    date: toISODate(data.date ?? slug.slice(0, 10)),
+    title: String(data.title),
+    chapeau: String(data.chapeau ?? ""),
+    category,
+    sources: Array.isArray(data.sources) ? data.sources.map(String) : [],
+    readingTime: readingTimeMinutes(content),
+  };
+  return { meta, content, slug };
+}
 
 export function listArticles(limit?: number): Article[] {
   if (!fs.existsSync(contentDir)) return [];
@@ -11,24 +30,18 @@ export function listArticles(limit?: number): Article[] {
   const articles = fs
     .readdirSync(contentDir)
     .filter((f) => f.endsWith(".mdx"))
-    .map((file) => {
-      const raw = fs.readFileSync(path.join(contentDir, file), "utf-8");
-      const { data, content } = matter(raw);
-      const slug = file.replace(/\.mdx$/, "");
-      return { meta: data as ArticleFrontmatter, content, slug };
-    })
+    .map(load)
+    .filter((a): a is Article => a !== null)
     .sort((a, b) => b.slug.localeCompare(a.slug));
 
   return limit ? articles.slice(0, limit) : articles;
 }
 
 export function getArticle(slug: string): Article | undefined {
+  if (!/^[a-z0-9-]+$/.test(slug)) return undefined;
   const filePath = path.join(contentDir, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return undefined;
-
-  const raw = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(raw);
-  return { meta: data as ArticleFrontmatter, content, slug };
+  return load(`${slug}.mdx`) ?? undefined;
 }
 
 export function listArticlesByCategory(
@@ -37,7 +50,7 @@ export function listArticlesByCategory(
 ): Article[] {
   return listArticles()
     .filter((a) => a.meta.category === category)
-    .slice(0, limit || 50);
+    .slice(0, limit ?? 100);
 }
 
 export function getLatestArticles(count: number): Article[] {

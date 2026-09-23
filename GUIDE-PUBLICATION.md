@@ -1,111 +1,102 @@
 # Guide de publication : Institut Jubël
 
-Ce guide explique comment ajouter un nouveau Carnet ou un nouveau numéro de la Revue sur le site de l'Institut Jubël.
+Ce guide décrit comment le contenu de jubel.sn est produit et comment y
+ajouter un texte. Le site est statique : chaque publication est un fichier
+Markdown (`.mdx`) dans le dossier `content/`, versionné dans Git. Un `git push`
+sur `main` déclenche la reconstruction et la mise en ligne par Railway.
 
-## Prérequis
+## Vue d'ensemble
 
-- Accès au dépôt Git du projet
-- Un éditeur de texte (VS Code, Sublime Text, ou tout autre éditeur)
-- Git installé sur votre machine
+| Section du site | Dossier | Auteur | Fréquence |
+|---|---|---|---|
+| Actualité (`/actualite`) | `content/actualite/` | Pipeline automatisé | 4 fois par jour |
+| Revue du Jour (`/revue`) | `content/revue-du-jour/` | Pipeline automatisé | Chaque matin |
+| Carnets (`/carnets`) | `content/carnets/` | Rédaction | Selon besoin |
+| Revue mensuelle (`/revue-mensuelle`) | `content/revue/` | Rédaction | Mensuelle |
 
----
+Les Carnets et la Revue mensuelle sont regroupés sur la page `/dossiers`.
 
-## Ajouter un nouveau Carnet
+## Règles éditoriales communes
 
-### 1. Créer le fichier
+- Français soigné, avec tous les accents.
+- Jamais de tiret cadratin (—) ni de tiret demi-cadratin (–) : virgule,
+  deux-points ou parenthèses.
+- Aucun nom de personne privée. Les responsables publics ne sont cités qu'en
+  lien avec leur fonction, dans les textes d'actualité uniquement.
+- Aucune photo, aucun bouton de don, aucun lien vers des réseaux sociaux.
+- Chaque fait s'appuie sur une source publique liée.
 
-Créez un nouveau fichier dans le dossier `content/carnets/`. Le nom du fichier deviendra l'URL du carnet.
+## Contenu automatisé
 
-**Exemple :** pour un carnet accessible à `/carnets/nom-du-carnet`, créez le fichier :
+Le pipeline vit dans `scripts/` et ses consignes éditoriales dans `prompts/`.
+Il est exécuté par GitHub Actions (`.github/workflows/jubel-actualite.yml`)
+à 6 h, 10 h, 14 h et 18 h UTC.
 
+- `scripts/revue/` collecte une vingtaine de flux RSS (`src/lib/revue-du-jour/feeds.ts`),
+  dédoublonne, classe par thème, puis produit la Revue du Jour.
+- `scripts/actualite/` identifie trois à cinq sujets du moment et rédige pour
+  chacun une analyse en quatre temps (le fait, le contexte, les angles,
+  la question Jubël). Un manifeste journalier évite de traiter deux fois le
+  même sujet entre deux passages.
+- Chaque sortie est validée (structure, catégorie, date) avant d'être écrite.
+  La date et le temps de lecture sont calculés par le système, jamais par le
+  modèle.
+
+Pour lancer un passage à la main : GitHub, onglet Actions, workflow
+`jubel-actualite`, bouton « Run workflow ». Pour tester en local :
+
+```bash
+ANTHROPIC_API_KEY=... npm run actualite
+ANTHROPIC_API_KEY=... npm run revue
 ```
-content/carnets/nom-du-carnet.mdx
-```
 
-Utilisez des minuscules, pas d'accents, des tirets à la place des espaces.
+Pour modifier la voix éditoriale, éditez `prompts/actualite.system.md` ou
+`prompts/revue.system.md`, puis validez sur trois passages avant de pousser.
 
-### 2. Écrire le contenu
+## Ajouter un Carnet
 
-Chaque fichier MDX commence par un bloc de métadonnées (frontmatter) entre `---`, suivi du contenu en Markdown.
+1. Créez `content/carnets/nom-du-carnet.mdx` (minuscules, sans accents,
+   tirets à la place des espaces). Le nom du fichier devient l'adresse
+   `/carnets/nom-du-carnet`.
+2. Renseignez l'en-tête, puis le texte en Markdown :
 
 ```mdx
 ---
 title: "Titre complet du carnet"
 date: "2026-05-15"
 description: "Une phrase de résumé qui apparaîtra dans la liste des carnets."
-numero: 5
+numero: 7
 ---
 
-## Premier titre de section
+## Préambule
 
-Texte du carnet ici. Vous pouvez utiliser toute la syntaxe Markdown :
-
-- **Gras** pour les mots importants
-- *Italique* pour les nuances
-- Des listes à puces ou numérotées
-
-> Les citations apparaissent avec un filet doré sur la gauche.
+Texte du carnet.
 
 ---
 
-## Deuxième titre de section
+## I. Première partie
 
-Suite du texte...
+Suite du texte.
 ```
 
-### 3. Champs obligatoires du frontmatter
+| Champ | Format | Exemple |
+|---|---|---|
+| `title` | Texte entre guillemets | `"Ce que nous devons à ceux qui ont pensé avant nous"` |
+| `date` | `"AAAA-MM-JJ"` entre guillemets | `"2026-05-15"` |
+| `description` | Une phrase | `"Sur la mémoire comme fondement de l'action publique."` |
+| `numero` | Nombre entier | `7` |
 
-| Champ         | Format              | Exemple                                    |
-|---------------|---------------------|--------------------------------------------|
-| `title`       | Texte entre guillemets | `"Ce que nous devons à ceux qui ont pensé avant nous"` |
-| `date`        | `"AAAA-MM-JJ"`     | `"2026-05-15"`                             |
-| `description` | Texte court         | `"Sur la mémoire comme fondement de l'action publique."` |
-| `numero`      | Nombre entier       | `5`                                        |
+## Ajouter un numéro de la Revue mensuelle
 
-### 4. Syntaxe Markdown disponible
-
-```markdown
-## Titre de section (h2)
-### Sous-titre (h3)
-
-Paragraphe normal.
-
-**Texte en gras**
-*Texte en italique*
-
-> Citation en retrait
-
-- Liste à puces
-- Deuxième point
-
-1. Liste numérotée
-2. Deuxième point
-
----   (séparateur horizontal)
-```
-
----
-
-## Ajouter un nouveau numéro de la Revue
-
-### 1. Créer le fichier
-
-Créez un nouveau fichier dans le dossier `content/revue/` :
-
-```
-content/revue/numero-2.mdx
-```
-
-### 2. Écrire le contenu
-
-La Revue suit la même syntaxe que les Carnets, avec un champ supplémentaire `rubriques` :
+1. Créez `content/revue/numero-N.mdx`.
+2. Même en-tête que les Carnets, plus la liste des rubriques :
 
 ```mdx
 ---
-title: "Revue Jubël : Numéro 2"
-date: "2026-04-01"
-description: "Deuxième numéro de la Revue mensuelle de l'Institut Jubël."
-numero: 2
+title: "Revue Jubël : Numéro 4"
+date: "2026-06-01"
+description: "Quatrième numéro de la Revue mensuelle de l'Institut Jubël."
+numero: 4
 rubriques:
   - "L'état des choses"
   - "Ce que disent les textes"
@@ -117,90 +108,54 @@ rubriques:
 
 ### Titre de l'article
 
-Contenu de la première rubrique...
+Texte.
 
 ---
 
 ## Ce que disent les textes
 
-### Titre de l'article
-
-Contenu de la deuxième rubrique...
-
----
-
-## Parole de bâtisseur
-
-### Titre de l'article
-
-Contenu de la troisième rubrique...
-
----
-
-## La question qu'on n'ose pas poser
-
-### Titre de l'article
-
-Contenu de la quatrième rubrique...
+...
 ```
 
-### 3. Champs du frontmatter
+## Syntaxe Markdown
 
-| Champ         | Format              | Exemple                                    |
-|---------------|---------------------|--------------------------------------------|
-| `title`       | Texte entre guillemets | `"Revue Jubël : Numéro 2"`              |
-| `date`        | `"AAAA-MM-JJ"`     | `"2026-04-01"`                             |
-| `description` | Texte court         | `"Deuxième numéro de la Revue mensuelle."` |
-| `numero`      | Nombre entier       | `2`                                        |
-| `rubriques`   | Liste de textes     | Voir exemple ci-dessus                     |
+```markdown
+## Titre de section
+### Sous-titre
 
----
+Paragraphe. **Gras**, *italique*.
 
-## Publier les modifications
+> Citation en retrait, filet doré à gauche.
 
-Une fois votre fichier MDX créé et relu :
+- Liste à puces
+
+1. Liste numérotée
+
+---   (séparateur)
+```
+
+Le rendu est en Markdown strict : le HTML et le code ne sont pas interprétés.
+
+## Publier
 
 ```bash
-# 1. Vérifier les fichiers modifiés
-git status
-
-# 2. Ajouter le nouveau fichier
 git add content/carnets/nom-du-carnet.mdx
-# ou
-git add content/revue/numero-2.mdx
-
-# 3. Créer un commit
-git commit -m "Ajout du Carnet n°5 : Titre du carnet"
-
-# 4. Pousser vers le dépôt
-git push
+git commit -m "Ajout du Carnet n°7 : Titre"
+git push origin main
 ```
 
-Le site sera automatiquement reconstruit et déployé par Railway après le push. Le nouveau contenu apparaîtra en quelques minutes.
+Le site est reconstruit et mis en ligne en quelques minutes. Avant de
+pousser, `npm run build` en local vérifie que le fichier est valide.
 
----
-
-## Conseils de rédaction
-
-- **Titres de sections** : utilisez `##` (h2) pour les grandes parties et `###` (h3) pour les sous-parties
-- **Séparateurs** : placez `---` entre les grandes sections pour une respiration visuelle
-- **Citations** : utilisez `>` pour les passages mis en valeur
-- **Longueur** : les Carnets sont des textes longs et denses ; la Revue est divisée en 4 rubriques distinctes
-- **Ton** : sobre, profond, sans jargon technique ni acronymes
-- **Date** : utilisez toujours le format `AAAA-MM-JJ` (année-mois-jour)
-- **Numérotation** : incrémentez le champ `numero` à chaque nouvelle publication
-
-## Structure des dossiers
+## Arborescence
 
 ```
 content/
-├── carnets/
-│   ├── ce-que-nous-devons.mdx          (Carnet n°1)
-│   ├── foi-et-developpement.mdx        (Carnet n°2)
-│   ├── renoncer-droits-devoirs.mdx     (Carnet n°3)
-│   ├── ce-que-nos-enfants.mdx          (Carnet n°4)
-│   └── votre-nouveau-carnet.mdx        (Carnet n°5, etc.)
-└── revue/
-    ├── numero-1.mdx                    (Numéro 1)
-    └── numero-2.mdx                    (Numéro 2, etc.)
+├── actualite/           analyses générées (AAAA-MM-JJ-sujet.mdx)
+├── revue-du-jour/       revues générées (AAAA-MM-JJ.mdx)
+├── carnets/             essais rédigés
+└── revue/               numéros mensuels rédigés
+prompts/                 consignes éditoriales du pipeline
+scripts/                 pipeline de génération
+src/                     site Next.js
 ```

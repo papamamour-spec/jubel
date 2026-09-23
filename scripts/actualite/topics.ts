@@ -1,53 +1,63 @@
-import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
 import { ClassifiedArticle } from "../../src/lib/revue-du-jour/types";
+import { createClient, extractJsonArray, extractText, MODELS } from "../lib/anthropic";
+import { Topic, topicSchema } from "../lib/types";
 
 const TOPICS_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "prompts", "actualite.topics.md"),
   "utf-8"
 );
 
-interface Topic {
-  topic: string;
-  category: string;
-  articleIds: string[];
-  importance: number;
-}
-
 export async function identifyTopics(
-  articles: ClassifiedArticle[]
+  articles: ClassifiedArticle[],
+  alreadyCovered: string[]
 ): Promise<Topic[]> {
-  const client = new Anthropic({ timeout: 60000 });
+  if (articles.length === 0) return [];
+  const client = createClient(60000);
+  const knownIds = new Set(articles.map((a) => a.id));
 
-  const input = articles.map((a) => ({
-    id: a.id,
-    source: a.source,
-    title: a.title,
-    summary: a.summary.slice(0, 300),
-    category: a.category,
-    salience: a.salience,
-  }));
+  const input = {
+    dejaTraites: alreadyCovered,
+    articles: articles.map((a) => ({
+      id: a.id,
+      source: a.source,
+      title: a.title,
+      summary: a.summary.slice(0, 300),
+      category: a.category,
+      salience: a.salience,
+    })),
+  };
 
   const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model: MODELS.fast,
     max_tokens: 2048,
     system: TOPICS_PROMPT,
     messages: [{ role: "user", content: JSON.stringify(input) }],
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
-
+  let raw: unknown[];
   try {
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    const topics: Topic[] = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-    return topics
-      .filter((t) => t.importance >= 3)
-      .sort((a, b) => b.importance - a.importance)
-      .slice(0, 5);
-  } catch {
-    console.error("[topics] Failed to parse response");
+    raw = extractJsonArray<unknown>(extractText(response));
+  } catch (err) {
+    console.error(`[topics] Unparseable response: ${err}`);
     return [];
   }
+
+  const topics: Topic[] = [];
+  for (const candidate of raw) {
+    const parsed = topicSchema.safeParse(candidate);
+    if (!parsed.success) {
+      console.warn(`[topics] Rejected topic: ${parsed.error.issues[0]?.message}`);
+      continue;
+    }
+    const ids = parsed.data.articleIds.filter((id) => knownIds.has(id));
+    if (ids.length < 2) continue;
+    topics.push({ ...parsed.data, articleIds: ids });
+  }
+
+  return topics
+    .filter((t) => t.importance >= 3)
+    .sort((a, b) => b.importance - a.importance)
+    .slice(0, 5);
 }

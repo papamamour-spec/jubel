@@ -1,16 +1,7 @@
 import crypto from "crypto";
 import { RawArticle } from "../../src/lib/revue-du-jour/types";
 import { MAX_ARTICLES_FOR_SYNTHESIS } from "../../src/lib/revue-du-jour/feeds";
-
-function normalizeTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+import { normalizeTitle } from "../lib/text";
 
 export function filterArticles(articles: RawArticle[]): RawArticle[] {
   const seen = new Set<string>();
@@ -28,12 +19,14 @@ export function filterArticles(articles: RawArticle[]): RawArticle[] {
     deduped.push(article);
   }
 
-  const sorted = deduped.sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
+  const time = (iso: string) => {
+    const t = new Date(iso).getTime();
+    return isNaN(t) ? 0 : t;
+  };
 
-  const result = sorted.slice(0, MAX_ARTICLES_FOR_SYNTHESIS);
+  const result = deduped
+    .sort((a, b) => time(b.publishedAt) - time(a.publishedAt))
+    .slice(0, MAX_ARTICLES_FOR_SYNTHESIS);
 
   console.log(
     `[filter] ${articles.length} -> ${deduped.length} (dedup) -> ${result.length} (capped)`

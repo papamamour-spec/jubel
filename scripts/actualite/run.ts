@@ -7,70 +7,90 @@ import { classifyArticles } from "../revue/classify";
 import { identifyTopics } from "./topics";
 import { generateArticle } from "./generate";
 import { MIN_SOURCES_TO_PUBLISH } from "../../src/lib/revue-du-jour/feeds";
+import { appendManifest, overlapRatio, readManifest } from "../lib/manifest";
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "actualite");
+const MAX_OVERLAP = 0.5;
 
 async function main() {
   const runId = crypto.randomUUID();
-  const date = new Date().toISOString().split("T")[0];
+  const date = new Date().toISOString().slice(0, 10);
 
-  console.log(`\n=== Actualite Jubel, ${date}, Run ${runId} ===\n`);
+  console.log(`\n=== Actualité Jubël, ${date}, run ${runId} ===\n`);
+  fs.mkdirSync(CONTENT_DIR, { recursive: true });
 
-  if (!fs.existsSync(CONTENT_DIR)) {
-    fs.mkdirSync(CONTENT_DIR, { recursive: true });
-  }
+  const { articles, successCount, totalSources, failedSources } =
+    await collectArticles();
 
-  try {
-    const { articles, successCount, failedSources } = await collectArticles();
-
-    if (successCount < MIN_SOURCES_TO_PUBLISH) {
-      console.error(
-        `[run] ${successCount} sources seulement. Echec: ${failedSources.join(", ")}`
-      );
-      process.exit(1);
-    }
-
-    const filtered = filterArticles(articles);
-    const classified = await classifyArticles(filtered);
-
-    console.log(`[run] ${classified.length} articles classes`);
-
-    const topics = await identifyTopics(classified);
-    console.log(`[run] ${topics.length} sujets identifies`);
-
-    let generated = 0;
-
-    for (const topic of topics) {
-      const existing = path.join(CONTENT_DIR, `${date}-${slugify(topic.topic)}.mdx`);
-      if (fs.existsSync(existing)) {
-        console.log(`[run] Article deja existant pour "${topic.topic}", skip`);
-        continue;
-      }
-
-      const result = await generateArticle(topic, classified, date, runId);
-      if (result) {
-        const filePath = path.join(CONTENT_DIR, `${result.slug}.mdx`);
-        fs.writeFileSync(filePath, result.mdx, "utf-8");
-        console.log(`[run] Genere : ${result.slug}`);
-        generated++;
-      }
-    }
-
-    console.log(`\n[run] ${generated} articles generes sur ${topics.length} sujets\n`);
-  } catch (err) {
-    console.error(`[run] Echec : ${err}`);
+  if (successCount < MIN_SOURCES_TO_PUBLISH) {
+    console.error(
+      `[run] ${successCount}/${totalSources} sources seulement. En échec : ${failedSources.join(", ")}`
+    );
     process.exit(1);
   }
+
+  const filtered = filterArticles(articles);
+  const classified = await classifyArticles(filtered);
+  console.log(`[run] ${classified.length} articles classés`);
+
+  const manifest = readManifest(CONTENT_DIR, date);
+  const topics = await identifyTopics(
+    classified,
+    manifest.map((m) => m.title)
+  );
+  console.log(`[run] ${topics.length} sujets proposés, ${manifest.length} déjà traités aujourd'hui`);
+
+  if (topics.length === 0) {
+    console.error("[run] Aucun sujet exploitable");
+    process.exit(1);
+  }
+
+  let generated = 0;
+  let skipped = 0;
+  const failures: string[] = [];
+
+  for (const topic of topics) {
+    const duplicate = manifest.find(
+      (m) => overlapRatio(m.articleIds, topic.articleIds) >= MAX_OVERLAP
+    );
+    if (duplicate) {
+      console.log(`[run] "${topic.topic}" recoupe "${duplicate.title}", ignoré`);
+      skipped++;
+      continue;
+    }
+
+    try {
+      const result = await generateArticle(topic, classified, date, runId);
+      const filePath = path.join(CONTENT_DIR, `${result.slug}.mdx`);
+      if (fs.existsSync(filePath)) {
+        console.log(`[run] ${result.slug} existe déjà, ignoré`);
+        skipped++;
+        continue;
+      }
+      fs.writeFileSync(filePath, result.mdx, "utf-8");
+      appendManifest(CONTENT_DIR, date, {
+        slug: result.slug,
+        title: result.title,
+        articleIds: topic.articleIds,
+        generatedAt: new Date().toISOString(),
+      });
+      manifest.push({ slug: result.slug, title: result.title, articleIds: topic.articleIds, generatedAt: "" });
+      console.log(`[run] Généré : ${result.slug}`);
+      generated++;
+    } catch (err) {
+      console.error(`[run] Échec pour "${topic.topic}" : ${err}`);
+      failures.push(topic.topic);
+    }
+  }
+
+  console.log(
+    `\n[run] ${generated} générés, ${skipped} ignorés, ${failures.length} échecs sur ${topics.length} sujets\n`
+  );
+
+  if (generated === 0 && failures.length > 0) process.exit(1);
 }
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, "-")
-    .slice(0, 60);
-}
-
-main();
+main().catch((err) => {
+  console.error(`[run] Erreur fatale : ${err}`);
+  process.exit(1);
+});

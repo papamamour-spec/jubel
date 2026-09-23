@@ -2,6 +2,7 @@ export interface FeedSource {
   name: string;
   url: string;
   profile: string;
+  enabled?: boolean;
 }
 
 export interface RawArticle {
@@ -26,11 +27,6 @@ export interface RevueFrontmatter {
   sourcesCount: number;
   itemsCount: number;
   readingTime: number;
-  _internal?: {
-    model: string;
-    generatedAt: string;
-    runId: string;
-  };
 }
 
 export interface RevueEdition {

@@ -1,20 +1,25 @@
-import Anthropic from "@anthropic-ai/sdk";
 import fs from "fs";
 import path from "path";
-import {
-  RawArticle,
-  ClassifiedArticle,
-} from "../../src/lib/revue-du-jour/types";
+import { z } from "zod";
+import { RawArticle, ClassifiedArticle } from "../../src/lib/revue-du-jour/types";
+import { createClient, extractJsonArray, extractText, MODELS } from "../lib/anthropic";
 
 const CLASSIFY_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "prompts", "revue.classify.md"),
   "utf-8"
 );
 
+const classificationSchema = z.object({
+  id: z.string(),
+  category: z.string().default("societe"),
+  salience: z.number().int().min(0).max(5).default(2),
+});
+
 export async function classifyArticles(
   articles: RawArticle[]
 ): Promise<ClassifiedArticle[]> {
-  const client = new Anthropic({ timeout: 60000 });
+  if (articles.length === 0) return [];
+  const client = createClient(60000);
 
   const input = articles.map((a) => ({
     id: a.id,
@@ -24,41 +29,28 @@ export async function classifyArticles(
   }));
 
   const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model: MODELS.fast,
     max_tokens: 4096,
     system: CLASSIFY_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: JSON.stringify(input),
-      },
-    ],
+    messages: [{ role: "user", content: JSON.stringify(input) }],
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
-
-  let classifications: { id: string; category: string; salience: number }[];
+  const classMap = new Map<string, { category: string; salience: number }>();
   try {
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    classifications = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-  } catch {
-    console.error("[classify] Failed to parse response, using defaults");
-    classifications = articles.map((a) => ({
-      id: a.id,
-      category: "social",
-      salience: 2,
-    }));
+    for (const raw of extractJsonArray<unknown>(extractText(response))) {
+      const parsed = classificationSchema.safeParse(raw);
+      if (parsed.success) classMap.set(parsed.data.id, parsed.data);
+    }
+  } catch (err) {
+    console.error(`[classify] Unparseable response, using defaults: ${err}`);
   }
-
-  const classMap = new Map(classifications.map((c) => [c.id, c]));
 
   const classified: ClassifiedArticle[] = articles
     .map((a) => {
       const c = classMap.get(a.id);
       return {
         ...a,
-        category: c?.category || "social",
+        category: c?.category ?? "societe",
         salience: c?.salience ?? 2,
       };
     })

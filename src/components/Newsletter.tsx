@@ -1,67 +1,93 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useEffect, useRef, useState, FormEvent } from "react";
+
+type Status = "idle" | "loading" | "success" | "error";
 
 export default function Newsletter() {
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const messageRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (status === "success" || status === "error") {
+      messageRef.current?.focus();
+    }
+  }, [status]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-
-    setLoading(true);
+    const data = new FormData(e.currentTarget);
+    setStatus("loading");
     try {
-      await fetch("https://formspree.io/f/xzdkyjdd", {
+      const res = await fetch("https://formspree.io/f/xzdkyjdd", {
         method: "POST",
         body: data,
         headers: { Accept: "application/json" },
       });
-      setSubmitted(true);
-    } finally {
-      setLoading(false);
+      setStatus(res.ok ? "success" : "error");
+    } catch {
+      setStatus("error");
     }
   }
 
-  if (submitted) {
+  if (status === "success") {
     return (
-      <p className="text-sm text-or">
+      <p
+        ref={messageRef}
+        tabIndex={-1}
+        role="status"
+        aria-live="polite"
+        className="text-sm text-or-text"
+      >
         Merci. Vous serez informé des prochaines publications.
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 items-end">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <input type="hidden" name="_subject" value="Nouvel abonné Jubël" />
-      <div className="flex-1">
-        <label htmlFor="newsletter-email" className="block text-xs text-noir/40 mb-1">
-          Recevoir les nouveautés
-        </label>
-        <input
-          type="email"
-          id="newsletter-email"
-          name="email"
-          required
-          placeholder="votre@email.com"
-          className="w-full border border-noir/10 bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-or transition-colors"
-        />
+      <div className="flex gap-3 items-end">
+        <div className="flex-1">
+          <label
+            htmlFor="newsletter-email"
+            className="block text-xs text-noir/70 mb-1"
+          >
+            Recevoir les nouveautés
+          </label>
+          <input
+            type="email"
+            id="newsletter-email"
+            name="email"
+            required
+            aria-required="true"
+            autoComplete="email"
+            placeholder="votre@email.com"
+            aria-describedby={status === "error" ? "newsletter-error" : undefined}
+            className="w-full border border-noir/20 bg-transparent px-3 py-2 text-sm placeholder:text-noir/50 focus:border-noir"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          aria-busy={status === "loading"}
+          className="border border-noir/30 px-4 py-2 text-sm hover:border-or-text hover:text-or-text whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {status === "loading" ? "Envoi en cours" : "S'abonner"}
+        </button>
       </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="border border-noir/20 px-4 py-2 text-sm hover:border-or hover:text-or transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-busy={loading}
-      >
-        {loading ? (
-          <span className="inline-flex items-center gap-1">
-            <span className="animate-pulse">...</span>
-          </span>
-        ) : (
-          "S'abonner"
-        )}
-      </button>
+      {status === "error" && (
+        <p
+          id="newsletter-error"
+          ref={messageRef}
+          tabIndex={-1}
+          role="alert"
+          className="text-xs text-noir/80"
+        >
+          L&apos;inscription n&apos;a pas abouti. Réessayez ou écrivez à
+          contact@jubel.sn.
+        </p>
+      )}
     </form>
   );
 }

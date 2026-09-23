@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "incremental": false
+  },
+  "include": ["scripts/**/*.ts", "src/lib/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}

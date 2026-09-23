@@ -1,100 +1,107 @@
 import { listEditions, getEdition } from "@/lib/revue-du-jour/reader";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { mdxOptions } from "@/lib/mdx";
+import { formatDateLong } from "@/lib/dates";
+import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
 
-export async function generateStaticParams() {
+export const dynamicParams = false;
+
+export function generateStaticParams() {
   return listEditions().map((e) => ({ date: e.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { date: string };
+  params: Promise<{ date: string }>;
 }): Promise<Metadata> {
-  const edition = getEdition(params.date);
+  const { date } = await params;
+  const edition = getEdition(date);
   if (!edition) return {};
+  const path = `/revue/${date}`;
   return {
     title: `${edition.meta.title} | Revue du Jour`,
     description: edition.meta.chapeau,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      url: path,
+      title: edition.meta.title,
+      description: edition.meta.chapeau,
+      publishedTime: edition.meta.date,
+      section: "Revue du Jour",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: edition.meta.title,
+      description: edition.meta.chapeau,
+    },
   };
 }
 
-function formatDateLong(dateStr: string | Date | number): string {
-  const str = String(dateStr);
-  const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
-  if (match) {
-    const d = new Date(`${match[1]}-${match[2]}-${match[3]}T12:00:00`);
-    return d.toLocaleDateString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
-  const d = new Date(str);
-  if (isNaN(d.getTime())) return str;
-  return d.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-export default function RevueDatePage({
+export default async function RevueDatePage({
   params,
 }: {
-  params: { date: string };
+  params: Promise<{ date: string }>;
 }) {
-  const edition = getEdition(params.date);
+  const { date } = await params;
+  const edition = getEdition(date);
   if (!edition) notFound();
+  const path = `/revue/${date}`;
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+    <article className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+      <JsonLd
+        data={articleJsonLd({
+          path,
+          title: edition.meta.title,
+          description: edition.meta.chapeau,
+          datePublished: edition.meta.date,
+          section: "Revue du Jour",
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Revue du Jour", path: "/revue" },
+          { name: formatDateLong(edition.meta.date), path },
+        ])}
+      />
       <Link
         href="/revue"
-        className="text-xs text-noir/40 hover:text-or transition-colors tracking-widest uppercase"
+        className="text-xs text-noir/70 hover:text-or-text tracking-widest uppercase"
       >
         &larr; La Revue du Jour
       </Link>
 
       <header className="mt-8 mb-12">
-        <p className="text-xs text-or tracking-widest uppercase mb-4">
+        <p className="text-xs text-or-text tracking-widest uppercase mb-4">
           La Revue du Jour
         </p>
-        <time className="text-sm text-noir/40 block">
+        <time dateTime={edition.meta.date} className="text-sm text-noir/65 block">
           {formatDateLong(edition.meta.date)}
         </time>
         <h1 className="font-serif text-2xl md:text-3xl mt-3 leading-tight">
           {edition.meta.title}
         </h1>
         {edition.meta.chapeau && (
-          <p className="text-noir/50 italic mt-3">{edition.meta.chapeau}</p>
+          <p className="text-noir/70 italic mt-3">{edition.meta.chapeau}</p>
         )}
       </header>
 
       <div className="prose-jubel">
-        <MDXRemote
-          source={edition.content}
-          options={{
-            mdxOptions: { remarkPlugins: [remarkGfm] },
-          }}
-        />
+        <MDXRemote source={edition.content} options={mdxOptions} />
       </div>
 
-      <footer className="border-t border-noir/10 mt-16 pt-6 flex flex-wrap gap-6 text-xs text-noir/40">
+      <footer className="border-t border-noir/10 mt-16 pt-6 flex flex-wrap gap-6 text-xs text-noir/70">
         <span>{edition.meta.sourcesCount} sources consultées</span>
         <span>Temps de lecture : {edition.meta.readingTime} min</span>
-        <Link
-          href="/revue/methodologie"
-          className="hover:text-or transition-colors"
-        >
+        <Link href="/revue/methodologie" className="hover:text-or-text">
           Méthodologie
         </Link>
       </footer>
-    </div>
+    </article>
   );
 }

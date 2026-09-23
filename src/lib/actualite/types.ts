@@ -2,14 +2,9 @@ export interface ArticleFrontmatter {
   date: string;
   title: string;
   chapeau: string;
-  category: string;
+  category: CategoryId;
   sources: string[];
   readingTime: number;
-  _internal?: {
-    model: string;
-    generatedAt: string;
-    runId: string;
-  };
 }
 
 export interface Article {
@@ -19,14 +14,24 @@ export interface Article {
 }
 
 export const CATEGORIES = [
-  { id: "politique", label: "Politique", color: "text-red-700/70" },
-  { id: "economie", label: "Economie", color: "text-emerald-700/70" },
-  { id: "societe", label: "Societe", color: "text-blue-700/70" },
-  { id: "justice", label: "Justice", color: "text-purple-700/70" },
-  { id: "international", label: "International", color: "text-amber-700/70" },
-  { id: "education", label: "Education", color: "text-cyan-700/70" },
-  { id: "sante", label: "Sante", color: "text-pink-700/70" },
-  { id: "culture", label: "Culture", color: "text-indigo-700/70" },
+  { id: "politique", label: "Politique" },
+  { id: "economie", label: "Économie" },
+  { id: "societe", label: "Société" },
+  { id: "justice", label: "Justice" },
+  { id: "international", label: "International" },
+  { id: "education", label: "Éducation" },
+  { id: "sante", label: "Santé" },
+  { id: "culture", label: "Culture" },
 ] as const;
 
 export type CategoryId = (typeof CATEGORIES)[number]["id"];
+
+export const CATEGORY_IDS = CATEGORIES.map((c) => c.id) as CategoryId[];
+
+export function isCategoryId(value: string): value is CategoryId {
+  return (CATEGORY_IDS as string[]).includes(value);
+}
+
+export function categoryLabel(id: string): string {
+  return CATEGORIES.find((c) => c.id === id)?.label ?? id;
+}
