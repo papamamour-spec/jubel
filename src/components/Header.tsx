@@ -4,11 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
+  { href: "/actualite", label: "Actualite" },
   { href: "/revue", label: "Revue du Jour" },
-  { href: "/revue-mensuelle", label: "Revue mensuelle" },
-  { href: "/carnets", label: "Carnets" },
-  { href: "/rencontres", label: "Rencontres" },
-  { href: "/bibliotheque", label: "Bibliothèque" },
+  { href: "/dossiers", label: "Dossiers" },
+  { href: "/bibliotheque", label: "Bibliotheque" },
   { href: "/contact", label: "Contact" },
 ];
 

@@ -1,0 +1,79 @@
+name: jubel-actualite
+on:
+  schedule:
+    - cron: "0 6 * * *"
+    - cron: "0 10 * * *"
+    - cron: "0 14 * * *"
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  revue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.schedule == '0 6 * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - run: npm ci
+
+      - name: Generer la Revue du Jour
+        timeout-minutes: 7
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx scripts/revue/run.ts
+
+      - name: Generer les articles d'actualite
+        timeout-minutes: 7
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx scripts/actualite/run.ts
+
+      - name: Commit et push
+        run: |
+          git config user.name "jubel-bot"
+          git config user.email "bot@jubel.sn"
+          git add content/revue-du-jour content/actualite
+          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "jubel: revue + actualite $(date +%Y-%m-%d)" && git pull --rebase origin main && git push origin main)
+
+  actualite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event.schedule == '0 10 * * *' || github.event.schedule == '0 14 * * *' || github.event.schedule == '0 18 * * *'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - run: npm ci
+
+      - name: Generer les articles d'actualite
+        timeout-minutes: 7
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npx tsx scripts/actualite/run.ts
+
+      - name: Commit et push
+        run: |
+          git config user.name "jubel-bot"
+          git config user.email "bot@jubel.sn"
+          git add content/actualite
+          git diff --staged --quiet && echo "Pas de changement" || (git commit -m "actualite: $(date +%Y-%m-%d-%H%M)" && git pull --rebase origin main && git push origin main)

@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { getCarnets, getRevues } from "@/lib/content";
 import { listEditions } from "@/lib/revue-du-jour/reader";
+import { listArticles } from "@/lib/actualite/reader";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://jubel.sn";
@@ -16,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}/revue-mensuelle/${r.meta.slug}`,
     lastModified: new Date(r.meta.date),
     changeFrequency: "monthly" as const,
-    priority: 0.8,
+    priority: 0.7,
   }));
 
   const revuesDuJour = listEditions().map((e) => ({
@@ -26,36 +27,37 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
+  const articles = listArticles().map((a) => ({
+    url: `${baseUrl}/actualite/${a.slug}`,
+    lastModified: new Date(a.meta.date),
+    changeFrequency: "daily" as const,
+    priority: 0.9,
+  }));
+
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: "monthly",
+      changeFrequency: "daily",
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/actualite`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
       priority: 1,
     },
     {
       url: `${baseUrl}/revue`,
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/revue-mensuelle`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/carnets`,
+      url: `${baseUrl}/dossiers`,
       lastModified: new Date(),
       changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/rencontres`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/bibliotheque`,
@@ -64,13 +66,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/rencontres`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: "yearly",
-      priority: 0.5,
+      priority: 0.4,
     },
+    ...articles,
     ...revuesDuJour,
-    ...revuesMensuelles,
     ...carnets,
+    ...revuesMensuelles,
   ];
 }
