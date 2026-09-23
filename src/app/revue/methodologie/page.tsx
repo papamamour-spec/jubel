@@ -98,6 +98,18 @@ export default function MethodologiePage() {
           réflexion rédigés et relus par l&apos;Institut.
         </p>
 
+        <h2>Le dessin de Jubël</h2>
+
+        <p>
+          Chaque texte est accompagné d&apos;un dessin de presse satirique,
+          lui aussi produit de manière automatisée puis soumis à une
+          relecture juridique et à un contrôle visuel avant publication. Il ne
+          représente jamais de personne réelle et vise les institutions, les
+          politiques publiques et les situations, jamais les individus. Les
+          règles complètes sont publiées dans la{" "}
+          <Link href="/charte-du-dessin">charte du dessin</Link>.
+        </p>
+
         <h2>Voix éditoriale</h2>
 
         <p>

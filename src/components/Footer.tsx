@@ -15,6 +15,9 @@ export default function Footer() {
             <Link href="/revue/methodologie" className="hover:text-or-text">
               Méthodologie
             </Link>
+            <Link href="/charte-du-dessin" className="hover:text-or-text">
+              Charte du dessin
+            </Link>
             <a href="/feed.xml" className="hover:text-or-text">
               Flux RSS
             </a>

@@ -36,7 +36,8 @@ async function main() {
   const manifest = readManifest(CONTENT_DIR, date);
   const topics = await identifyTopics(
     classified,
-    manifest.map((m) => m.title)
+    manifest.map((m) => m.title),
+    date
   );
   console.log(`[run] ${topics.length} sujets proposés, ${manifest.length} déjà traités aujourd'hui`);
 
@@ -75,7 +76,7 @@ async function main() {
         generatedAt: new Date().toISOString(),
       });
       manifest.push({ slug: result.slug, title: result.title, articleIds: topic.articleIds, generatedAt: "" });
-      console.log(`[run] Généré : ${result.slug}`);
+      console.log(`[run] Généré : ${result.slug} (dessin : ${result.cartoon})`);
       generated++;
     } catch (err) {
       console.error(`[run] Échec pour "${topic.topic}" : ${err}`);

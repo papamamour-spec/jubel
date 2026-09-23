@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { getLatestEdition, listEditions } from "@/lib/revue-du-jour/reader";
+import { getLatestEdition, listEditions, isFresh } from "@/lib/revue-du-jour/reader";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import type { Metadata } from "next";
 import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
 import { JsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import Cartoon from "@/components/Cartoon";
 
 export const metadata: Metadata = {
   title: "La Revue du Jour",
@@ -31,25 +32,30 @@ export default function RevueDuJourPage() {
     );
   }
 
+  const fresh = isFresh(latest);
   const archive = editions.filter((e) => e.slug !== latest.slug).slice(0, 30);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-16 md:py-24">
+    <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
       <JsonLd data={breadcrumbJsonLd([{ name: "Revue du Jour", path: "/revue" }])} />
-      <div className="mb-12">
+      <div className="mb-8">
         <p className="text-xs text-or-text tracking-widest uppercase mb-4">
-          La Revue du Jour
+          {fresh ? "La Revue du Jour" : "Dernière Revue du Jour publiée"}
         </p>
         <time dateTime={latest.meta.date} className="text-sm text-noir/65 block">
           {formatDateLong(latest.meta.date)}
         </time>
-        <h1 className="font-serif text-2xl md:text-3xl mt-3 leading-tight">
+        <h1 className="font-serif text-3xl md:text-4xl mt-3 leading-[1.15] font-medium">
           {latest.meta.title}
         </h1>
         {latest.meta.chapeau && (
-          <p className="text-noir/70 italic mt-3">{latest.meta.chapeau}</p>
+          <p className="text-noir/75 text-lg italic mt-4">{latest.meta.chapeau}</p>
         )}
       </div>
+
+      {latest.meta.illustration && (
+        <Cartoon illustration={latest.meta.illustration} priority />
+      )}
 
       <div className="prose-jubel">
         <MDXRemote source={latest.content} options={mdxOptions} />

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { parseFrontMatter } from "@/lib/frontmatter";
 import { readingTimeMinutes, toISODate } from "@/lib/dates";
+import { readIllustration, readPublishedAt } from "@/lib/meta";
 import { Article, ArticleFrontmatter, CategoryId, isCategoryId } from "./types";
 
 const contentDir = path.join(process.cwd(), "content", "actualite");
@@ -13,13 +14,16 @@ function load(file: string): Article | null {
   const category = String(data.category ?? "");
   if (!isCategoryId(category) || !data.title) return null;
 
+  const date = toISODate(data.date ?? slug.slice(0, 10));
   const meta: ArticleFrontmatter = {
-    date: toISODate(data.date ?? slug.slice(0, 10)),
+    date,
+    publishedAt: readPublishedAt(data, date),
     title: String(data.title),
     chapeau: String(data.chapeau ?? ""),
     category,
     sources: Array.isArray(data.sources) ? data.sources.map(String) : [],
     readingTime: readingTimeMinutes(content),
+    illustration: readIllustration(data),
   };
   return { meta, content, slug };
 }
@@ -32,7 +36,7 @@ export function listArticles(limit?: number): Article[] {
     .filter((f) => f.endsWith(".mdx"))
     .map(load)
     .filter((a): a is Article => a !== null)
-    .sort((a, b) => b.slug.localeCompare(a.slug));
+    .sort((a, b) => b.meta.publishedAt.localeCompare(a.meta.publishedAt));
 
   return limit ? articles.slice(0, limit) : articles;
 }

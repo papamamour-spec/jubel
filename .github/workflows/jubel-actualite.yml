@@ -25,7 +25,7 @@ env:
 jobs:
   publier:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,9 +47,10 @@ jobs:
         id: revue
         if: github.event.schedule == '0 6 * * *' || (github.event_name == 'workflow_dispatch' && inputs.revue)
         continue-on-error: true
-        timeout-minutes: 7
+        timeout-minutes: 10
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
         run: npx tsx scripts/revue/run.ts
@@ -57,9 +58,10 @@ jobs:
       - name: Générer les analyses d'actualité
         id: actualite
         continue-on-error: true
-        timeout-minutes: 8
+        timeout-minutes: 15
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: npx tsx scripts/actualite/run.ts
 
       - name: Publier
@@ -67,7 +69,7 @@ jobs:
         run: |
           git config user.name "jubel-bot"
           git config user.email "bot@jubel.sn"
-          git add content/revue-du-jour content/actualite
+          git add content/revue-du-jour content/actualite public/illustrations
           if git diff --staged --quiet; then
             echo "Aucun nouveau contenu"
           else

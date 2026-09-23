@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Article } from "@/lib/actualite/types";
-import { CATEGORIES, categoryLabel } from "@/lib/actualite/types";
-import { formatDateShort } from "@/lib/dates";
+import { Article, CATEGORIES } from "@/lib/actualite/types";
+import { ArticleCard } from "./ArticleCard";
 
 export function CategoryFilter({ active }: { active?: string }) {
   const base = "text-xs px-3 py-1.5 border";
@@ -44,35 +43,9 @@ export function ArticleList({ articles }: { articles: Article[] }) {
     );
   }
   return (
-    <div className="space-y-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-12">
       {articles.map((article) => (
-        <article key={article.slug} className="group">
-          <Link href={`/actualite/${article.slug}`}>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-xs uppercase tracking-widest text-or-text">
-                {categoryLabel(article.meta.category)}
-              </span>
-              <time dateTime={article.meta.date} className="text-xs text-noir/65">
-                {formatDateShort(article.meta.date)}
-              </time>
-            </div>
-            <h2 className="font-serif text-xl md:text-2xl group-hover:text-or-text leading-tight">
-              {article.meta.title}
-            </h2>
-            {article.meta.chapeau && (
-              <p className="text-noir/70 text-sm mt-2 leading-relaxed">
-                {article.meta.chapeau}
-              </p>
-            )}
-            <p className="flex items-center gap-4 mt-3 text-xs text-noir/65">
-              <span>{article.meta.readingTime} min de lecture</span>
-              <span>
-                {article.meta.sources.length} source
-                {article.meta.sources.length > 1 ? "s" : ""}
-              </span>
-            </p>
-          </Link>
-        </article>
+        <ArticleCard key={article.slug} article={article} size="medium" />
       ))}
     </div>
   );

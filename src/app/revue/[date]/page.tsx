@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { mdxOptions } from "@/lib/mdx";
 import { formatDateLong } from "@/lib/dates";
 import { JsonLd, articleJsonLd, breadcrumbJsonLd } from "@/components/JsonLd";
+import Cartoon from "@/components/Cartoon";
 
 export const dynamicParams = false;
 
@@ -90,6 +91,10 @@ export default async function RevueDatePage({
           <p className="text-noir/70 italic mt-3">{edition.meta.chapeau}</p>
         )}
       </header>
+
+      {edition.meta.illustration && (
+        <Cartoon illustration={edition.meta.illustration} priority />
+      )}
 
       <div className="prose-jubel">
         <MDXRemote source={edition.content} options={mdxOptions} />

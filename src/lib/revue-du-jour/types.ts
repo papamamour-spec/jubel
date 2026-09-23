@@ -1,3 +1,5 @@
+import { Illustration } from "@/lib/actualite/types";
+
 export interface FeedSource {
   name: string;
   url: string;
@@ -21,12 +23,14 @@ export interface ClassifiedArticle extends RawArticle {
 
 export interface RevueFrontmatter {
   date: string;
+  publishedAt: string;
   title: string;
   chapeau: string;
   categories: string[];
   sourcesCount: number;
   itemsCount: number;
   readingTime: number;
+  illustration?: Illustration;
 }
 
 export interface RevueEdition {

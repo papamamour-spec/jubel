@@ -3,6 +3,7 @@ import path from "path";
 import { ClassifiedArticle } from "../../src/lib/revue-du-jour/types";
 import { createClient, extractJsonArray, extractText, MODELS } from "../lib/anthropic";
 import { Topic, topicSchema } from "../lib/types";
+import { fillDateTokens } from "../lib/prompts";
 
 const TOPICS_PROMPT = fs.readFileSync(
   path.join(process.cwd(), "prompts", "actualite.topics.md"),
@@ -11,11 +12,13 @@ const TOPICS_PROMPT = fs.readFileSync(
 
 export async function identifyTopics(
   articles: ClassifiedArticle[],
-  alreadyCovered: string[]
+  alreadyCovered: string[],
+  date: string
 ): Promise<Topic[]> {
   if (articles.length === 0) return [];
   const client = createClient(60000);
   const knownIds = new Set(articles.map((a) => a.id));
+  const prompt = fillDateTokens(TOPICS_PROMPT, date);
 
   const input = {
     dejaTraites: alreadyCovered,
@@ -32,7 +35,7 @@ export async function identifyTopics(
   const response = await client.messages.create({
     model: MODELS.fast,
     max_tokens: 2048,
-    system: TOPICS_PROMPT,
+    system: prompt,
     messages: [{ role: "user", content: JSON.stringify(input) }],
   });
 

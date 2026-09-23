@@ -97,6 +97,17 @@
     @apply font-semibold text-noir;
   }
 
+  /* La question Jubël : mise en exergue, signature éditoriale */
+  .prose-jubel h2[id^="la-question"] {
+    @apply mt-16 mb-0 px-6 pt-6 text-xs tracking-[0.25em] uppercase text-or-text font-sans font-medium border-t-2 border-or bg-or/10;
+    letter-spacing: 0.25em;
+  }
+
+  .prose-jubel h2[id^="la-question"] + p {
+    @apply px-6 pb-6 pt-3 mb-10 bg-or/10 font-serif italic text-noir;
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  }
+
   .prose-jubel em {
     @apply italic;
   }
