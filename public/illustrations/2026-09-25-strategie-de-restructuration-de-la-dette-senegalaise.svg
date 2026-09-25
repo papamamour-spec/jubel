@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" width="1536" height="1024" role="img" aria-label="Le remède souverain contre la dette : une salle d'attente de taille continentale, accès garanti… à terme.">
+  <rect width="1536" height="1024" fill="#FAFAF7"/>
+  <rect x="48" y="48" width="1440" height="928" fill="none" stroke="#1A1A1A" stroke-width="3"/>
+  <rect x="200" y="386" width="1136" height="252" rx="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4"/>
+  <path d="M 640 638 L 600 708 L 700 638" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+  <line x1="700" y1="638" x2="640" y2="638" stroke="#FFFFFF" stroke-width="6"/>
+  <text x="768" y="474" font-family="Georgia, 'Playfair Display', serif" font-size="34" font-style="italic" fill="#1A1A1A" text-anchor="middle"><tspan x="768" dy="0">Le remède souverain contre la dette :</tspan><tspan x="768" dy="44">une salle d'attente de taille</tspan><tspan x="768" dy="44">continentale, accès garanti… à terme.</tspan></text>
+  <circle cx="1400" cy="900" r="22" fill="#C9A84C"/>
+  <text x="96" y="940" font-family="Georgia, serif" font-size="22" letter-spacing="6" fill="#7A6120">LE DESSIN DE JUBËL</text>
+</svg>
