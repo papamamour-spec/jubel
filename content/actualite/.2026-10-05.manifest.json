@@ -88,5 +88,40 @@
       "e1b35258b0c1"
     ],
     "generatedAt": "2026-10-05T10:16:39.611Z"
+  },
+  {
+    "slug": "2026-10-05-gestion-de-crise-inondations-mesures-durgence-et-debats-poli",
+    "title": "Inondations à Dakar : plan d'urgence et comptes à rendre",
+    "articleIds": [
+      "07985b406ce3",
+      "88311e0279fa",
+      "709054c5ace2",
+      "f365960794b3",
+      "f533fcb99545",
+      "eb50df91bba4",
+      "ea56471d581c"
+    ],
+    "generatedAt": "2026-10-05T14:08:16.606Z"
+  },
+  {
+    "slug": "2026-10-05-previsions-meteorologiques-nouvelles-pluies-jusqua-mercredi",
+    "title": "Nouvelles pluies sur Dakar : l'ANACIM en alerte jusqu'à mercredi",
+    "articleIds": [
+      "6523fa416b5c",
+      "bcf7327ffde0",
+      "3bb3b0ea149d"
+    ],
+    "generatedAt": "2026-10-05T14:08:43.507Z"
+  },
+  {
+    "slug": "2026-10-05-perturbations-infrastructurelles-et-transport-apres-les-plui",
+    "title": "Pluies au Sénégal : routes coupées, terminus bloqués et populations isolées",
+    "articleIds": [
+      "4730c1367b3e",
+      "3f8d76b452f3",
+      "187e48c01ecb",
+      "13e4710f4bcc"
+    ],
+    "generatedAt": "2026-10-05T14:09:16.017Z"
   }
 ]
