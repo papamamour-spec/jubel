@@ -32,5 +32,29 @@
       "0aa91bcab8d5"
     ],
     "generatedAt": "2026-10-06T06:12:01.376Z"
+  },
+  {
+    "slug": "2026-10-06-inondations-a-dakar-bilan-humain-et-infrastructure",
+    "title": "Dakar sous les eaux : cinq morts et une ville à l'arrêt",
+    "articleIds": [
+      "a36a0831f676",
+      "75d80ca6c0b3",
+      "cc0ea21a3cad",
+      "78b83ab76501",
+      "61c7972e4f90",
+      "1ce09eb341a3",
+      "d19d9f153f42",
+      "9eacbc727bac"
+    ],
+    "generatedAt": "2026-10-06T10:11:35.920Z"
+  },
+  {
+    "slug": "2026-10-06-fraude-bancaire-transafricaine-de-19-milliard-fcfa",
+    "title": "Fraude aux virements : 1,9 milliard FCFA évaporés entre Dakar et Abidjan",
+    "articleIds": [
+      "ec4e15b50631",
+      "c781beff7a83"
+    ],
+    "generatedAt": "2026-10-06T10:12:05.604Z"
   }
 ]
